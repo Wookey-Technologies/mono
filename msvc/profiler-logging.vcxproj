@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="..\mono\profiler\mono-profiler-logging.c" />
   </ItemGroup>
+  <Import Condition="exists('SiteMono.props')" Project="SiteMono.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
