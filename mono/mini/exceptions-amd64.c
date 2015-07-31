@@ -1327,7 +1327,11 @@ mono_tasklets_arch_restore (void)
 	amd64_mov_reg_membase (code, AMD64_RBP, AMD64_RCX, MONO_STRUCT_OFFSET (MonoLMF, rbp), 8);
 	amd64_mov_reg_membase (code, AMD64_RSP, AMD64_RCX, MONO_STRUCT_OFFSET (MonoLMF, rsp), 8);
 
-	amd64_mov_reg_reg(code, AMD64_R14, AMD64_ARG_REG3, 8);
+#ifdef WIN32
+    amd64_mov_reg_reg(code, AMD64_R14, AMD64_ARG_REG3, 8);
+#else
+    amd64_mov_reg_reg(code, AMD64_R12, AMD64_ARG_REG3, 8);
+#endif
 
 	/* state is already in rax */
 	amd64_jump_membase (code, cont_reg, MONO_STRUCT_OFFSET (MonoContinuation, return_ip));
