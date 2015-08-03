@@ -47,7 +47,7 @@ continuation_mark_frame (MonoContinuation *cont)
 {
 	MonoJitTlsData *jit_tls;
 	MonoLMF *lmf;
-	MonoContext ctx = {}, new_ctx = {};
+	MonoContext ctx, new_ctx;
 	MonoJitInfo *ji, rji;
 	int endloop = FALSE;
 
@@ -60,6 +60,7 @@ continuation_mark_frame (MonoContinuation *cont)
 
 	/* get to the frame that called Mark () */
 	memset (&rji, 0, sizeof (rji));
+	memset (&ctx, 0, sizeof (ctx));
 	do {
 		ji = mono_find_jit_info (cont->domain, jit_tls, &rji, NULL, &ctx, &new_ctx, NULL, &lmf, NULL, NULL);
 		if (!ji || ji == (gpointer)-1) {
