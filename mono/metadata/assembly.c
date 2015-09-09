@@ -630,7 +630,7 @@ set_dirs (char *exe)
 	 */
 	bindir = mono_config_get_bin_dir ();
 	g_assert (bindir);
-	if (strncmp (exe, bindir, strlen (bindir)) == 0 || (base = compute_base (exe)) == NULL){
+	if ((base = compute_base (exe)) == NULL){
 		fallback ();
 		return;
 	}

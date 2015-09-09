@@ -178,9 +178,9 @@ endif
 
 
 REWRITE_COMMON = sed \
-	-e 's,@''bindir@,$(bindir),g'				\
+	-e 's,@''bindir@,\$$\(dirname \$$0\),g'				\
 	-e 's,@''plat_bindir@,$(plat_bindir),g'			\
-	-e 's,@''mono_instdir@,$(mono_instdir),g'		\
+	-e 's,@''mono_instdir@,\$$\(dirname \$$0\)/../lib/mono,g'		\
 	-e 's,@''gtkdir@,$(gtkdir),g'
 
 REWRITE = $(REWRITE_COMMON) -e 's,@''mono_interp@,$(mono_interp),g'
