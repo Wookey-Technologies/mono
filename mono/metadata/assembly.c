@@ -621,14 +621,14 @@ set_dirs (char *exe)
 	 */
 	bindir = mono_config_get_bin_dir ();
 	g_assert (bindir);
-	if (strncmp (exe, bindir, strlen (bindir)) == 0 || (base = compute_base (exe)) == NULL){
+	if ((base = compute_base (exe)) == NULL){
 		fallback ();
 		return;
 	}
 
 	config = g_build_filename (base, "etc", NULL);
 	lib = g_build_filename (base, "lib", NULL);
-	mono = g_build_filename (lib, "mono/2.0", NULL);
+	mono = g_build_filename (lib, "mono/4.5", NULL);
 	if (stat (mono, &buf) == -1)
 		fallback ();
 	else {
