@@ -417,7 +417,7 @@ mono_code_manager_destroy (MonoCodeManager *cman)
 {
 	free_chunklist (cman->full);
 	free_chunklist (cman->current);
-	free (cman);
+	g_free (cman);
 }
 
 /**

@@ -32,15 +32,10 @@
 #include <ctype.h>
 #include <glib.h>
 
-#include "vasprintf.h"
-
 /* This is not a macro, because I dont want to put _GNU_SOURCE in the glib.h header */
 gchar *
 g_strndup (const gchar *str, gsize n)
 {
-#ifdef HAVE_STRNDUP
-	return strndup (str, n);
-#else
 	if (str) {
 		char *retval = g_malloc(n+1);
 		if (retval) {
@@ -49,7 +44,6 @@ g_strndup (const gchar *str, gsize n)
 		return retval;
 	}
 	return NULL;
-#endif
 }
 
 void
@@ -133,7 +127,7 @@ g_strdup_vprintf (const gchar *format, va_list args)
 	int n;
 	char *ret;
 	
-	n = vasprintf (&ret, format, args);
+    n = g_vasprintf(&ret, format, args);
 	if (n == -1)
 		return NULL;
 
@@ -148,7 +142,7 @@ g_strdup_printf (const gchar *format, ...)
 	int n;
 
 	va_start (args, format);
-	n = vasprintf (&ret, format, args);
+    n = g_vasprintf(&ret, format, args);
 	va_end (args);
 	if (n == -1)
 		return NULL;
