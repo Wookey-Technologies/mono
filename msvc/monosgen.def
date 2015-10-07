@@ -47,7 +47,6 @@ mono_assembly_open_full
 mono_assembly_set_main
 mono_assembly_setrootdir
 mono_binary_search
-mono_bitset_alloc_size
 mono_bitset_clear
 mono_bitset_clear_all
 mono_bitset_clone
@@ -665,8 +664,8 @@ mono_parse_default_optimizations
 mono_path_canonicalize
 mono_path_resolve_symlinks
 mono_pe_file_open
-mono_perfcounter_foreach
-mono_perfcounters_init
+;mono_perfcounter_foreach
+;mono_perfcounters_init
 mono_pmip
 mono_poll
 mono_print_method_from_ip
@@ -907,3 +906,4 @@ mono_win32_compat_FillMemory
 mono_win32_compat_MoveMemory
 mono_win32_compat_ZeroMemory
 mono_xdebug_flush
+g_mem_set_vtable

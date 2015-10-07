@@ -530,6 +530,14 @@ mono_determine_physical_ram_available_size (void)
 #endif
 }
 
+void 
+mono_perfcounters_destroy()
+{
+	mono_shared_area_remove();
+	mono_perfcounters = NULL;
+	shared_area = NULL;
+}
+
 void
 mono_perfcounters_init (void)
 {

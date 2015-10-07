@@ -1821,8 +1821,10 @@ load_aot_module (MonoAssembly *assembly, gpointer user_data)
 			if (!sofile) {
 				mono_trace (G_LOG_LEVEL_INFO, MONO_TRACE_AOT, "AOT module '%s' not found: %s\n", aot_name, err);
 				g_free (err);
-
-				aot_name = g_strdup_printf ("%s/mono/aot-cache/%s/%s%s", mono_assembly_getrootdir(), ARCHITECTURE, g_path_get_basename (assembly->image->name), MONO_SOLIB_EXT);
+				g_free (aot_name);
+				char* basename = g_path_get_basename(assembly->image->name);
+				aot_name = g_strdup_printf ("%s/mono/aot-cache/%s/%s%s", mono_assembly_getrootdir(), ARCHITECTURE, basename, MONO_SOLIB_EXT);
+				g_free(basename);
 				sofile = mono_dl_open (aot_name, MONO_DL_LAZY, &err);
 				if (!sofile) {
 					mono_trace (G_LOG_LEVEL_INFO, MONO_TRACE_AOT, "AOT module '%s' not found: %s\n", aot_name, err);
@@ -3720,7 +3722,7 @@ load_method (MonoDomain *domain, MonoAotModule *amodule, MonoImage *image, MonoM
 }
 
 static guint32
-find_aot_method_in_amodule (MonoAotModule *amodule, MonoMethod *method)
+find_aot_method_in_amodule (MonoAotModule *amodule, MonoMethod *method, guint32 hash_full)
 {
 	guint32 table_size, entry_size, hash;
 	guint32 *table, *entry;
@@ -3731,10 +3733,9 @@ find_aot_method_in_amodule (MonoAotModule *amodule, MonoMethod *method)
 		return 0xffffff;
 
 	table_size = amodule->extra_method_table [0];
+	hash = hash_full % table_size;
 	table = amodule->extra_method_table + 1;
 	entry_size = 3;
-
-	hash = mono_aot_method_hash (method) % table_size;
 
 	entry = &table [hash * entry_size];
 
@@ -3816,10 +3817,11 @@ find_aot_method (MonoMethod *method, MonoAotModule **out_amodule)
 	guint32 index;
 	GPtrArray *modules;
 	int i;
+	guint32 hash = mono_aot_method_hash (method);
 
 	/* Try the method's module first */
 	*out_amodule = method->klass->image->aot_module;
-	index = find_aot_method_in_amodule (method->klass->image->aot_module, method);
+	index = find_aot_method_in_amodule (method->klass->image->aot_module, method, hash);
 	if (index != 0xffffff)
 		return index;
 
@@ -3841,7 +3843,7 @@ find_aot_method (MonoMethod *method, MonoAotModule **out_amodule)
 		MonoAotModule *amodule = g_ptr_array_index (modules, i);
 
 		if (amodule != method->klass->image->aot_module)
-			index = find_aot_method_in_amodule (amodule, method);
+			index = find_aot_method_in_amodule (amodule, method, hash);
 		if (index != 0xffffff) {
 			*out_amodule = amodule;
 			break;

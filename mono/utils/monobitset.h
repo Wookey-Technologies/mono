@@ -82,8 +82,8 @@ enum {
  * Interface documentation can be found in the c-file.
  * Interface documentation by Dennis Haney.
  */
-#define mono_bitset_alloc_size(max_size, flags)\
-    (guint32)(sizeof(MonoBitSet) + sizeof(gsize) * (((max_size + MONO_BITSET_BITS_PER_CHUNK - 1) / MONO_BITSET_BITS_PER_CHUNK)) - MONO_ZERO_LEN_ARRAY)
+
+MONO_API guint32     mono_bitset_alloc_size   (guint32 max_size, guint32 flags);
 
 MONO_API MonoBitSet* mono_bitset_new          (guint32 max_size, guint32 flags);
 
