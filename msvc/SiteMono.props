@@ -28,7 +28,7 @@
       <BrowseInformation>false</BrowseInformation>
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <!--/D USE_MUNMAP /D USE_MMAP-->
-      <AdditionalOptions>/D NVALGRIND /FS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D DISABLE_PERFCOUNTERS /D NVALGRIND /FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link Condition="$(ConfigurationType) == 'DynamicLibrary'">
       <ImportLibrary>$(OutputBaseDir)$(Platform)\$(Configuration)\lib\$(TargetName).lib</ImportLibrary>

@@ -907,3 +907,4 @@ mono_win32_compat_MoveMemory
 mono_win32_compat_ZeroMemory
 mono_xdebug_flush
 g_mem_set_vtable
+mono_thread_final_cleanup
