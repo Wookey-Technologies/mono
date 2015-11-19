@@ -155,3 +155,12 @@ g_get_tmp_dir (void)
 	return tmp_dir;
 }
 
+void
+g_env_cleanup(void)
+{
+	pthread_mutex_lock (&pw_lock);
+	g_free(home_dir);
+	g_free(user_name);
+	home_dir = NULL;
+	pthread_mutex_unlock (&pw_lock);
+}

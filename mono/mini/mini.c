@@ -2030,8 +2030,6 @@ mono_destroy_compile (MonoCompile *cfg)
 
 	mono_debug_free_method (cfg);
 
-	mono_clean_direct_icall();
-
 	g_free (cfg->varinfo);
 	g_free (cfg->vars);
 	g_free (cfg->exception_message);
@@ -4280,6 +4278,11 @@ mono_jit_compile_method_inner (MonoMethod *method, MonoDomain *target_domain, in
 }
 
 	register_opcode_emulation (OP_RCONV_TO_U8, "__emul_rconv_to_u8", "ulong float", mono_rconv_u8, "mono_rconv_u8", FALSE);
+	mono_tasklets_cleanup ();
+
+
+	mono_clean_direct_icall ();
+	mono_gc_final_cleanup ();
 #ifndef DISABLE_JIT
 
 void*

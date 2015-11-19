@@ -158,6 +158,10 @@ mono_tasklets_init (void)
 void
 mono_tasklets_cleanup (void)
 {
+	if(keepalive_stacks) {
+		mono_g_hash_table_destroy (keepalive_stacks);
+    keepalive_stacks = NULL;
+	}
 }
 
 #endif

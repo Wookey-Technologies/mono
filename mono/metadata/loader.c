@@ -2749,6 +2749,11 @@ mono_method_get_header (MonoMethod *method)
 		MonoMethodInflated *imethod = (MonoMethodInflated *) method;
 		MonoMethodHeader *header, *iheader;
 
+		// Pre-emptively check for an already cached header to avoid building
+		// and destroying one in the most common cached case.
+		if (imethod->header)
+			return imethod->header;
+
 		header = mono_method_get_header (imethod->declaring);
 		if (!header)
 			return NULL;
@@ -2758,13 +2763,16 @@ mono_method_get_header (MonoMethod *method)
 
 		mono_image_lock (img);
 
+		// Check for a set header again inside the lock.
 		if (imethod->header) {
+			// Another thread set the header while we were building this one.
+			iheader->is_transient = TRUE; // Force clean up to actually free the header.
 			mono_metadata_free_mh (iheader);
 			mono_image_unlock (img);
 			return imethod->header;
 		}
-
 		mono_memory_barrier ();
+
 		imethod->header = iheader;
 
 		mono_image_unlock (img);

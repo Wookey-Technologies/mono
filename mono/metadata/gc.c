@@ -1269,18 +1269,26 @@ mono_gc_cleanup (void)
 			}
 		}
 
-		mono_mutex_destroy(gc_thread->synch_cs);
-		g_free(gc_thread->synch_cs);
-		g_free(gc_thread->name);
+		mono_mutex_destroy (gc_thread->synch_cs);
+		g_free (gc_thread->synch_cs);
+		g_free (gc_thread->name);
 		gc_thread = NULL;
 		mono_gc_base_cleanup ();
 	}
 
 	mono_reference_queue_cleanup ();
 
+	for (int i = 0; i < sizeof (gc_handles) / sizeof (HandleData); ++i) {
+		g_free (gc_handles [i].bitmap);
+		g_free (gc_handles [i].entries);
+		gc_handles [i].bitmap = NULL;
+		gc_handles [i].entries = NULL;
+	}
+
 	mono_mutex_destroy (&allocator_section);
 	mono_mutex_destroy (&finalizer_mutex);
 	mono_mutex_destroy (&reference_queue_mutex);
+
 }
 
 /**

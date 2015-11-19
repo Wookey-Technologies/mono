@@ -1326,6 +1326,8 @@ mono_arch_init (void)
 void
 mono_arch_cleanup (void)
 {
+	mono_vfree (bp_trigger_page, mono_pagesize ());
+	mono_vfree (ss_trigger_page, mono_pagesize ());
 	mono_mutex_destroy (&mini_arch_mutex);
 #if defined(__native_client_codegen__)
 	mono_native_tls_free (nacl_instruction_depth);

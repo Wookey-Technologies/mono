@@ -55,7 +55,7 @@ g_print (const gchar *format, ...)
 		stdout_handler = default_stdout_handler;
 
 	stdout_handler (msg);
-	free (msg);
+	g_free (msg);
 }
 
 void
@@ -73,7 +73,7 @@ g_printerr (const gchar *format, ...)
 		stderr_handler = default_stderr_handler;
 
 	stderr_handler (msg);
-	free (msg);
+	g_free (msg);
 }
 
 GLogLevelFlags
@@ -109,7 +109,7 @@ g_logv (const gchar *log_domain, GLogLevelFlags log_level, const gchar *format, 
 		return;
 
 	default_log_func (log_domain, log_level, msg, default_log_func_user_data);
-	free (msg);
+	g_free (msg);
 }
 
 void

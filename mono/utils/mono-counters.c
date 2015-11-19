@@ -9,6 +9,7 @@
 #include "mono-counters.h"
 #include "mono-proclib.h"
 #include "mono-mutex.h"
+#include "metadata/class-internals.h"
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -650,6 +651,8 @@ mono_counters_cleanup (void)
 	}
 
 	mono_mutex_unlock (&counters_mutex);
+
+	mono_perfcounters_destroy ();
 }
 
 static MonoResourceCallback limit_reached = NULL;

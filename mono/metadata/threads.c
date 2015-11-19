@@ -1179,6 +1179,16 @@ ves_icall_System_Threading_InternalThread_Thread_free_internal (MonoInternalThre
 		g_free (synch_cs);
 	}
 
+	if (this->static_data) {
+		mono_free_static_data (this->static_data, TRUE);
+		this->static_data = NULL;
+	}
+
+	if (this->appdomain_refs) {
+		ref_stack_destroy (this->appdomain_refs);
+		this->appdomain_refs = NULL;
+	}
+
 	if (this->name) {
 		void *name = this->name;
 		this->name = NULL;
@@ -3557,23 +3567,36 @@ void
 mono_thread_final_cleanup(void)
 {
 	int i;
-	for (i = 0; i < NUM_STATIC_DATA_IDX; ++i)
-	{
+	for (i = 0; i < NUM_STATIC_DATA_IDX; ++i) {
 		if (static_reference_bitmaps[i])
 		{
 			g_free(thread_reference_bitmaps[i]);
 			static_reference_bitmaps[i] = 0;
 		}
 	}
-	mono_thread_info_detach();
-	mono_thread_smr_cleanup();
-#ifdef HAVE_SGEN_GC
-	sgen_alloc_nursery_cleanup();
-#endif
-	mono_g_hash_table_destroy(threads_starting_up);
-	mono_g_hash_table_destroy(thread_start_args);
-	mono_g_hash_table_destroy(threads);
+	mono_thread_info_detach ();
+
+	mono_g_hash_table_destroy (threads_starting_up);
+	mono_g_hash_table_destroy (thread_start_args);
+	mono_g_hash_table_destroy (threads);
 	threads = NULL;
+#ifdef HAVE_SGEN_GC
+	sgen_alloc_nursery_cleanup ();
+	sgen_complex_descriptor_cleanup ();
+	sgen_marksweep_cleanup ();
+#endif
+	mono_thread_smr_cleanup ();
+
+	MonoThreadDomainTls *freelist = thread_static_info.freelist;
+	while (freelist) {
+		thread_static_info.freelist = freelist->next;
+		g_free (freelist);
+		freelist = thread_static_info.freelist;
+	}
+
+#ifndef HOST_WIN32
+	g_hash_table_destroy (joinable_threads);
+#endif
 }
 
 static void

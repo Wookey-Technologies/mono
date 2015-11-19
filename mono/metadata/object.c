@@ -1061,7 +1061,7 @@ mono_method_get_imt_slot (MonoMethod *method)
 
 	sig = mono_method_signature (method);
 	hashes_count = sig->param_count + 4;
-	hashes_start = malloc (hashes_count * sizeof (guint32));
+	hashes_start = g_malloc (hashes_count * sizeof (guint32));
 	hashes = hashes_start;
 
 	if (! MONO_CLASS_IS_INTERFACE (method->klass)) {
@@ -1101,7 +1101,7 @@ mono_method_get_imt_slot (MonoMethod *method)
 		break;
 	}
 	
-	free (hashes_start);
+	g_free (hashes_start);
 	/* Report the result */
 	return c % MONO_IMT_SIZE;
 }
@@ -1207,7 +1207,7 @@ imt_emit_ir (MonoImtBuilderEntry **sorted_array, int start, int end, GPtrArray *
 static GPtrArray*
 imt_sort_slot_entries (MonoImtBuilderEntry *entries) {
 	int number_of_entries = entries->children + 1;
-	MonoImtBuilderEntry **sorted_array = malloc (sizeof (MonoImtBuilderEntry*) * number_of_entries);
+	MonoImtBuilderEntry **sorted_array = g_malloc (sizeof (MonoImtBuilderEntry*) * number_of_entries);
 	GPtrArray *result = g_ptr_array_new ();
 	MonoImtBuilderEntry *current_entry;
 	int i;
@@ -1223,7 +1223,7 @@ imt_sort_slot_entries (MonoImtBuilderEntry *entries) {
 
 	imt_emit_ir (sorted_array, 0, number_of_entries, result);
 
-	free (sorted_array);
+	g_free (sorted_array);
 	return result;
 }
 
@@ -1268,7 +1268,7 @@ build_imt_slots (MonoClass *klass, MonoVTable *vt, MonoDomain *domain, gpointer*
 	int i;
 	GSList *list_item;
 	guint32 imt_collisions_bitmap = 0;
-	MonoImtBuilderEntry **imt_builder = calloc (MONO_IMT_SIZE, sizeof (MonoImtBuilderEntry*));
+	MonoImtBuilderEntry **imt_builder = g_calloc (MONO_IMT_SIZE, sizeof (MonoImtBuilderEntry*));
 	int method_count = 0;
 	gboolean record_method_count_for_max_collisions = FALSE;
 	gboolean has_generic_virtual = FALSE, has_variant_iface = FALSE;
@@ -1399,7 +1399,7 @@ build_imt_slots (MonoClass *klass, MonoVTable *vt, MonoDomain *domain, gpointer*
 			entry = next;
 		}
 	}
-	free (imt_builder);
+	g_free (imt_builder);
 	/* we OR the bitmap since we may build just a single imt slot at a time */
 	vt->imt_collisions_bitmap |= imt_collisions_bitmap;
 }
@@ -3007,6 +3007,15 @@ mono_vtable_get_static_field_data (MonoVTable *vt)
 	if (!vt->has_static_fields)
 		return NULL;
 	return vt->vtable [vt->klass->vtable_size];
+}
+
+void *
+mono_vtable_free_static_field_data (MonoVTable *vt)
+{
+	if (!vt->has_static_fields)
+		return NULL;
+	mono_gc_free_fixed (vt->vtable [vt->klass->vtable_size]);
+	vt->vtable [vt->klass->vtable_size] = NULL;
 }
 
 static guint8*

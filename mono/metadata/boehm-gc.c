@@ -1461,5 +1461,8 @@ mono_gc_is_null (void)
 {
 	return FALSE;
 }
-
+void
+mono_gc_final_cleanup (void)
+{
+}
 #endif /* no Boehm GC */

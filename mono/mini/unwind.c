@@ -643,7 +643,13 @@ mono_unwind_cleanup (void)
 		g_free (cached);
 	}
 
-	g_free (cached_info);
+	GSList* node = cached_info_list;
+	while (node) {
+		g_free (node->data);
+		node = node->next;
+	}
+	g_list_free (cached_info_list);
+	cached_info_list = NULL;
 }
 
 /*
@@ -667,6 +673,7 @@ mono_cache_unwind_info (guint8 *unwind_info, guint32 unwind_info_len)
 	if (cached_info == NULL) {
 		cached_info_size = 16;
 		cached_info = g_new0 (MonoUnwindInfo*, cached_info_size);
+		cached_info_list = g_slist_prepend (cached_info_list, cached_info);
 	}
 
 	for (i = 0; i < cached_info_next; ++i) {

@@ -164,3 +164,10 @@ g_get_tmp_dir (void)
 	return tmp_dir;
 }
 
+
+void 
+g_env_cleanup(void)
+{
+	g_free(tmp_dir); 
+	tmp_dir = NULL;
+}
