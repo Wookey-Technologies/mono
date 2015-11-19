@@ -925,7 +925,9 @@ mono_cleanup (void)
 	mono_debug_cleanup ();
 	mono_metadata_cleanup ();
 
+#ifdef HAVE_SGEN_GC
 	g_free (appdomains_list);
+#endif
 	appdomains_list = NULL;
 	appdomain_list_size = 0;
 
@@ -1203,7 +1205,7 @@ mono_domain_free (MonoDomain *domain, gboolean force)
 	domain->private_invoke_method = NULL;
 	domain->default_context = NULL;
 
-	g_free (domain->out_of_memory_ex);
+	g_free(domain->out_of_memory_ex);
 	domain->out_of_memory_ex = NULL;
 	domain->null_reference_ex = NULL;
 	domain->stack_overflow_ex = NULL;
@@ -1218,10 +1220,10 @@ mono_domain_free (MonoDomain *domain, gboolean force)
 	domain->proxy_vtable_hash = NULL;
 	if (domain->static_data_array) {
 		if (force) {
-			int length = GPOINTER_TO_INT (domain->static_data_array [1]);
+			int length = GPOINTER_TO_INT (domain->static_data_array[1]);
 			for (int i = 2; i < length; i++) {
-				if (domain->static_data_array [i]) {
-					mono_gc_free_fixed (domain->static_data_array [i]);
+				if (domain->static_data_array[i]) {
+					mono_gc_free_fixed (domain->static_data_array[i]);
 				}
 			}
 		}

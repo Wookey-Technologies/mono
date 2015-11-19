@@ -1269,9 +1269,9 @@ mono_gc_cleanup (void)
 			}
 		}
 
-		mono_mutex_destroy (gc_thread->synch_cs);
-		g_free (gc_thread->synch_cs);
-		g_free (gc_thread->name);
+		mono_mutex_destroy(gc_thread->synch_cs);
+		g_free(gc_thread->synch_cs);
+		g_free(gc_thread->name);
 		gc_thread = NULL;
 		mono_gc_base_cleanup ();
 	}
@@ -1280,7 +1280,9 @@ mono_gc_cleanup (void)
 
 	for (int i = 0; i < sizeof (gc_handles) / sizeof (HandleData); ++i) {
 		g_free (gc_handles [i].bitmap);
+#ifdef HAVE_SGEN_GC
 		g_free (gc_handles [i].entries);
+#endif
 		gc_handles [i].bitmap = NULL;
 		gc_handles [i].entries = NULL;
 	}

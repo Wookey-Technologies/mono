@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0"
          xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
@@ -28,7 +28,7 @@
       <BrowseInformation>false</BrowseInformation>
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <!--/D USE_MUNMAP /D USE_MMAP-->
-      <AdditionalOptions>/D DISABLE_PERFCOUNTERS /D NVALGRIND /FS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D NVALGRIND /FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link Condition="$(ConfigurationType) == 'DynamicLibrary'">
       <ImportLibrary>$(OutputBaseDir)$(Platform)\$(Configuration)\lib\$(TargetName).lib</ImportLibrary>
