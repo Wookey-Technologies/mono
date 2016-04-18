@@ -205,6 +205,15 @@ static SgenPointerQueue allocated_blocks;
 static void *empty_blocks = NULL;
 static size_t num_empty_blocks = 0;
 
+#define FORSOME_BLOCK_NO_LOCK(bl,chunk,total_chunks) {			\
+	size_t chunk_size = allocated_blocks.next_slot / total_chunks;\
+	size_t limit = chunk_size * (chunk + 1);\
+	if (limit > allocated_blocks.next_slot)\
+		limit - allocated_blocks.next_slot;\
+	size_t __index;							\
+	SGEN_ASSERT (0, sgen_is_world_stopped () && !sweep_in_progress (), "Can't iterate blocks while the world is running or sweep is in progress."); \
+	for (__index = chunk * chunk_size; __index < limit; ++__index) { \
+		(bl) = BLOCK_UNTAG (allocated_blocks.data [__index]);
 #define FOREACH_BLOCK_NO_LOCK_CONDITION(cond,bl) {			\
 	size_t __index;							\
 	SGEN_ASSERT (0, (cond) && !sweep_in_progress (), "Can't iterate blocks while the world is running or sweep is in progress."); \
@@ -860,7 +869,7 @@ major_finish_sweep_checking (void)
 }
 
 static void
-major_iterate_objects (IterateObjectsFlags flags, IterateObjectCallbackFunc callback, void *data)
+major_iterate_some_objects  (IterateObjectsFlags flags, IterateObjectCallbackFunc callback, void *data, int chunk, int total_chunks)
 {
 	gboolean sweep = flags & ITERATE_OBJECTS_SWEEP;
 	gboolean non_pinned = flags & ITERATE_OBJECTS_NON_PINNED;
@@ -868,7 +877,7 @@ major_iterate_objects (IterateObjectsFlags flags, IterateObjectCallbackFunc call
 	MSBlockInfo *block;
 
 	major_finish_sweep_checking ();
-	FOREACH_BLOCK_NO_LOCK (block) {
+	FORSOME_BLOCK_NO_LOCK (block, chunk, total_chunks) {
 		int count = MS_BLOCK_FREE / block->obj_size;
 		int i;
 
@@ -900,6 +909,12 @@ major_iterate_objects (IterateObjectsFlags flags, IterateObjectCallbackFunc call
 				callback ((GCObject*)obj, block->obj_size, data);
 		}
 	} END_FOREACH_BLOCK_NO_LOCK;
+}
+
+static void
+major_iterate_objects (IterateObjectsFlags flags, IterateObjectCallbackFunc callback, void *data)
+{
+	major_iterate_some_objects(flags, callback, data, 0, 1);
 }
 
 static gboolean
@@ -2457,6 +2472,7 @@ sgen_marksweep_init_internal (SgenMajorCollector *collector, gboolean is_concurr
 	collector->alloc_object = major_alloc_object;
 	collector->free_pinned_object = free_pinned_object;
 	collector->iterate_objects = major_iterate_objects;
+	collector->iterate_some_objects = major_iterate_some_objects;
 	collector->free_non_pinned_object = major_free_non_pinned_object;
 	collector->pin_objects = major_pin_objects;
 	collector->pin_major_object = pin_major_object;

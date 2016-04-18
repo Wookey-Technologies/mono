@@ -1274,7 +1274,7 @@ static const char info[] =
 #else
     "\tNotification:  Thread + polling\n"
 #endif
-        "\tArchitecture:  " ARCHITECTURE "\n"
+	"\tArchitecture:  " MONO_ARCHITECTURE "\n"
 	"\tDisabled:      " DISABLED_FEATURES "\n"
 	"\tMisc:          "
 #ifdef MONO_SMALL_CONFIG

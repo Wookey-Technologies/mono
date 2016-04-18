@@ -934,7 +934,7 @@ heap_walk (MonoProfiler *profiler)
 	heapshot_requested = 0;
 	emit_byte (logbuffer, TYPE_HEAP_START | TYPE_HEAP);
 	emit_time (logbuffer, now);
-	mono_gc_walk_heap (0, gc_reference, NULL);
+	mono_gc_walk_heap (0, gc_reference, 0, 1, MONO_HEAP_WALK_SECTION_ALL, NULL);
 	logbuffer = ensure_logbuf (10);
 	now = current_time ();
 	emit_byte (logbuffer, TYPE_HEAP_END | TYPE_HEAP);

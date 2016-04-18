@@ -43,11 +43,6 @@
 
 #include <mono/metadata/gc-internal.h>
 
-
-#ifdef HAVE_SGEN_GC
-#include <mono/metadata/sgen-gc.h>
-#endif 
-
 #ifdef HAVE_SIGNAL_H
 #include <signal.h>
 #endif
@@ -1180,7 +1175,7 @@ ves_icall_System_Threading_InternalThread_Thread_free_internal (MonoInternalThre
 	}
 
 	if (this->static_data) {
-		mono_free_static_data (this->static_data, TRUE);
+		mono_free_static_data (this->static_data);
 		this->static_data = NULL;
 	}
 
@@ -3568,10 +3563,10 @@ mono_thread_final_cleanup(void)
 {
 	int i;
 	for (i = 0; i < NUM_STATIC_DATA_IDX; ++i) {
-		if (static_reference_bitmaps[i])
+		if (thread_reference_bitmaps[i])
 		{
 			g_free(thread_reference_bitmaps[i]);
-			static_reference_bitmaps[i] = 0;
+			thread_reference_bitmaps[i] = 0;
 		}
 	}
 	mono_thread_info_detach ();
@@ -3586,13 +3581,6 @@ mono_thread_final_cleanup(void)
 	sgen_marksweep_cleanup ();
 #endif
 	mono_thread_smr_cleanup ();
-
-	MonoThreadDomainTls *freelist = thread_static_info.freelist;
-	while (freelist) {
-		thread_static_info.freelist = freelist->next;
-		g_free (freelist);
-		freelist = thread_static_info.freelist;
-	}
 
 #ifndef HOST_WIN32
 	g_hash_table_destroy (joinable_threads);

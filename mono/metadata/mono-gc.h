@@ -19,7 +19,12 @@ MONO_API int64_t mono_gc_get_used_size   (void);
 MONO_API int64_t mono_gc_get_heap_size   (void);
 MONO_API int    mono_gc_invoke_finalizers (void);
 /* heap walking is only valid in the pre-stop-world event callback */
-MONO_API int    mono_gc_walk_heap        (int flags, MonoGCReferences callback, void *data);
+MONO_API int    mono_gc_walk_heap(int flags, MonoGCReferences callback, int chunk, int total_chunks, int section_flags, void *data);
+
+#define MONO_HEAP_WALK_SECTION_NURSERY  1
+#define MONO_HEAP_WALK_SECTION_MAJOR    2
+#define MONO_HEAP_WALK_SECTION_LOS      4
+#define MONO_HEAP_WALK_SECTION_ALL      -1
 
 MONO_END_DECLS
 

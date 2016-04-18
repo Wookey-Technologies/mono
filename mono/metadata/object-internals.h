@@ -1611,7 +1611,7 @@ MONO_API void *
 mono_vtable_get_static_field_data (MonoVTable *vt);
 
 void
-mono_vtable_free_static_field_data (MonoVTable *vt) MONO_INTERNAL;
+mono_vtable_free_static_field_data (MonoVTable *vt);
 
 char *
 mono_string_to_utf8_ignore (MonoString *s);

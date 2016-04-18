@@ -3,6 +3,7 @@
 
 #include <mono/metadata/class.h>
 #include <mono/utils/mono-error.h>
+#include <stddef.h>
 
 MONO_BEGIN_DECLS
 
@@ -29,6 +30,7 @@ typedef struct _MonoAppContext MonoAppContext;
 typedef struct _MonoObject {
 	MonoVTable *vtable;
 	MonoThreadsSync *synchronisation;
+	ptrdiff_t tracking_id;
 } MonoObject;
 
 typedef MonoObject* (*MonoInvokeFunc)	     (MonoMethod *method, void *obj, void **params, MonoObject **exc);

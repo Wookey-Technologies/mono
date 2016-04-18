@@ -2076,6 +2076,8 @@ typedef struct {
 	int flags;
 	int count;
 	int called;
+    int chunk;
+    int total_chunks;
 	MonoObject *refs [REFS_SIZE];
 	uintptr_t offsets [REFS_SIZE];
 } HeapWalkInfo;
@@ -2133,16 +2135,23 @@ walk_references (GCObject *start, size_t size, void *data)
  * Returns: a non-zero value if the GC doesn't support heap walking
  */
 int
-mono_gc_walk_heap (int flags, MonoGCReferences callback, void *data)
+mono_gc_walk_heap (int flags, MonoGCReferences callback, int chunk, int total_chunks, int section_flags, void *data)
 {
 	HeapWalkInfo hwi;
 
 	hwi.flags = flags;
 	hwi.callback = callback;
 	hwi.data = data;
+	hwi.chunk = chunk;
+	hwi.total_chunks = total_chunks;
 
-	sgen_clear_nursery_fragments ();
-	sgen_scan_area_with_callback (nursery_section->data, nursery_section->end_data, walk_references, &hwi, FALSE);
+	if (section_flags & MONO_HEAP_WALK_SECTION_NURSERY){
+		sgen_clear_nursery_fragments ();
+		sgen_scan_area_with_callback (nursery_section->data, nursery_section->end_data, walk_references, &hwi, FALSE);
+	}
+
+	if (section_flags & MONO_HEAP_WALK_SECTION_MAJOR)
+		major_collector.iterate_some_objects (ITERATE_OBJECTS_SWEEP_ALL, walk_references, &hwi, chunk, total_chunks);
 
 	major_collector.iterate_objects (ITERATE_OBJECTS_SWEEP_ALL, walk_references, &hwi);
 	sgen_los_iterate_objects (walk_references, &hwi);
