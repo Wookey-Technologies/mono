@@ -302,6 +302,7 @@
       <PreprocessorDefinitions>X64</PreprocessorDefinitions>
     </MASM>
   </ItemDefinitionGroup>
+  <Import Condition="exists('SiteMono.props')" Project="SiteMono.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />

@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0"
+         xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <!--<ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup> -->
+  <PropertyGroup Label="UserMacros">
+    <OutputBaseDir>$(SolutionDir)..\..\Output\</OutputBaseDir>
+    <OutDir Condition="$(ConfigurationType) == 'Application'" >$(OutputBaseDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <OutDir Condition="$(ConfigurationType) == 'DynamicLibrary'" >$(OutputBaseDir)$(Platform)\$(Configuration)\bin\</OutDir>
+    <OutDir Condition="$(ConfigurationType) == 'StaticLibrary'" >$(OutputBaseDir)$(Platform)\$(Configuration)\lib\</OutDir>
+    <TargetPath>$(OutDir)$(TargetName)$(TargetExt)</TargetPath>
+    <IntDir>$(SolutionDir)..\..\obj\$(Configuration)\$(Platform)\$(MSBuildProjectName)\</IntDir>
+    <IntermediateDir>$(IntDir)</IntermediateDir>
+  </PropertyGroup>
+  <PropertyGroup >
+    <PlatformToolset>v120</PlatformToolset>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <ProgramDataBaseFileName >$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <DebugInformationFormat >OldStyle</DebugInformationFormat>
+      <BrowseInformation>false</BrowseInformation>
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
+      <!--/D USE_MUNMAP /D USE_MMAP-->
+      <AdditionalOptions>/D NVALGRIND /FS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link Condition="$(ConfigurationType) == 'DynamicLibrary'">
+      <ImportLibrary>$(OutputBaseDir)$(Platform)\$(Configuration)\lib\$(TargetName).lib</ImportLibrary>
+    </Link>
+    <Link>
+      <AdditionalLibraryDirectories>$(OutputBaseDir)$(Platform)\$(Configuration)\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="$(Configuration)=='Debug_SGen'">$(OutputBaseDir)$(Platform)\Debug\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories Condition="$(Configuration)=='Release_SGen'">$(OutputBaseDir)$(Platform)\Release\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <BuildMacro Include="OutputBaseDir">
+      <Value>$(OutputBaseDir)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

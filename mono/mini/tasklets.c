@@ -46,7 +46,6 @@ continuation_mark_frame (MonoContinuation *cont)
 
 	if (cont->domain)
 		return mono_get_exception_argument ("cont", "Already marked");
-
 	jit_tls = (MonoJitTlsData *)mono_native_tls_get_value (mono_jit_tls_id);
 	lmf = mono_get_lmf();
 	cont->domain = mono_domain_get ();
@@ -54,6 +53,7 @@ continuation_mark_frame (MonoContinuation *cont)
 
 	/* get to the frame that called Mark () */
 	memset (&rji, 0, sizeof (rji));
+	memset (&ctx, 0, sizeof (ctx));
 	do {
 		ji = mono_find_jit_info (cont->domain, jit_tls, &rji, NULL, &ctx, &new_ctx, NULL, &lmf, NULL, NULL);
 		if (!ji || ji == (gpointer)-1) {

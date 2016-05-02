@@ -224,6 +224,7 @@
       <Project>{cb0d9e92-293c-439c-9ac7-c5f59b6e0771}</Project>
     </ProjectReference>
   </ItemGroup>
+  <Import Condition="exists('SiteMono.props')" Project="SiteMono.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

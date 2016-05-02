@@ -320,6 +320,7 @@
     <ClInclude Include="..\libgc\include\private\gc_priv.h" />
     <ClInclude Include="..\libgc\include\private\gcconfig.h" />
   </ItemGroup>
+  <Import Condition="exists('SiteMono.props')" Project="SiteMono.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
