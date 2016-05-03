@@ -49,6 +49,9 @@
 
 G_BEGIN_DECLS
 
+int g_vasprintf(char **strp, const char *fmt, va_list ap);
+
+
 /*
  * Basic data types
  */
@@ -154,7 +157,7 @@ gpointer g_try_realloc (gpointer obj, gsize size);
 #define g_alloca(size)		alloca (size)
 
 gpointer g_memdup (gconstpointer mem, guint byte_size);
-static inline gchar   *g_strdup (const gchar *str) { if (str) {return strdup (str);} return NULL; }
+static inline gchar   *g_strdup(const gchar *str) { if (str) { return (gchar*)g_memdup(str, (guint)strlen(str) + 1); } return NULL; }
 gchar **g_strdupv (gchar **str_array);
 
 typedef struct {
@@ -243,7 +246,6 @@ gint         g_snprintf        (gchar *string, gulong n, gchar const *format, ..
 #define g_vfprintf vfprintf
 #define g_vsprintf vsprintf
 #define g_vsnprintf vsnprintf
-#define g_vasprintf vasprintf
 
 gsize   g_strlcpy            (gchar *dest, const gchar *src, gsize dest_size);
 gchar  *g_stpcpy             (gchar *dest, const char *src);

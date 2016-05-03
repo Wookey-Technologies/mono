@@ -7,22 +7,6 @@
 #define BITS_PER_CHUNK MONO_BITSET_BITS_PER_CHUNK
 
 /*
- * mono_bitset_alloc_size:
- * @max_size: The number of bits you want to hold
- * @flags: unused
- *
- * Return the number of bytes required to hold the bitset.
- * Useful to allocate it on the stack or with mempool.
- * Use with mono_bitset_mem_new ().
- */
-guint32
-mono_bitset_alloc_size (guint32 max_size, guint32 flags) {
-	guint32 real_size = (max_size + BITS_PER_CHUNK - 1) / BITS_PER_CHUNK;
-
-	return sizeof (MonoBitSet) + sizeof (gsize) * (real_size - MONO_ZERO_LEN_ARRAY);
-}
-
-/*
  * mono_bitset_new:
  * @max_size: The numer of bits you want to hold
  * @flags: bitfield of flags
@@ -35,7 +19,7 @@ mono_bitset_new (guint32 max_size, guint32 flags) {
 	guint32 real_size = (max_size + BITS_PER_CHUNK - 1) / BITS_PER_CHUNK;
 	MonoBitSet *result;
 
-	result = (MonoBitSet *) g_malloc0 (sizeof (MonoBitSet) + sizeof (gsize) * (real_size - MONO_ZERO_LEN_ARRAY));
+    result = g_malloc0(mono_bitset_alloc_size(max_size,flags));
 	result->size = real_size * BITS_PER_CHUNK;
 	result->flags = flags;
 	return result;

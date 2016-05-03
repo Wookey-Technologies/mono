@@ -50,7 +50,7 @@ extern gint global_passed, global_tests;
 #ifndef HAVE_VASPRINTF
   /* systen does not provide a vasprintf function, use the one
      provided within eglib itself */
-extern int vasprintf(char **ret, const char *format, va_list ap);
+extern int g_vasprintf(char **ret, const char *format, va_list ap);
 #endif
 
 static gchar *last_result = NULL;
@@ -183,7 +183,7 @@ FAILED(const gchar *format, ...)
 	return NULL;
 #else
 	va_start(args, format);
-	n = vasprintf(&ret, format, args);
+	n = g_vasprintf(&ret, format, args);
 	va_end(args);
 
 	if(n == -1) {
