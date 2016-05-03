@@ -169,7 +169,7 @@ typedef struct {
 	gpointer (*try_realloc) (gpointer mem, gsize n_bytes);
 } GMemVTable;
 
-#define g_mem_set_vtable(x)
+void g_mem_set_vtable(GMemVTable* vtable);
 
 struct _GMemChunk {
 	guint alloc_size;

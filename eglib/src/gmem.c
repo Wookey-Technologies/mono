@@ -29,11 +29,23 @@
 #include <string.h>
 #include <glib.h>
 
+
+
+GMemVTable sGMemVTable = { malloc, realloc, free, calloc };
+
+void g_mem_set_vtable(GMemVTable* vtable)
+{
+    sGMemVTable.calloc = vtable->calloc ? vtable->calloc : calloc;
+    sGMemVTable.realloc = vtable->realloc ? vtable->realloc : realloc;
+    sGMemVTable.malloc = vtable->malloc ? vtable->malloc : malloc;
+    sGMemVTable.free = vtable->free ? vtable->free : free;
+}
+
 void
 g_free (void *ptr)
 {
 	if (ptr != NULL)
-		free (ptr);
+        sGMemVTable.free(ptr);
 }
 
 gpointer
@@ -58,7 +70,7 @@ gpointer g_realloc (gpointer obj, gsize size)
 		g_free (obj);
 		return 0;
 	}
-	ptr = realloc (obj, size);
+    ptr = sGMemVTable.realloc(obj, size);
 	if (ptr)
 		return ptr;
 	g_error ("Could not allocate %i bytes", size);
@@ -70,7 +82,7 @@ g_malloc (gsize x)
 	gpointer ptr;
 	if (!x)
 		return 0;
-	ptr = malloc (x);
+    ptr = sGMemVTable.malloc(x);
 	if (ptr) 
 		return ptr;
 	g_error ("Could not allocate %i bytes", x);
@@ -81,7 +93,7 @@ gpointer g_malloc0 (gsize x)
 	gpointer ptr; 
 	if (!x) 
 		return 0; 
-	ptr = calloc(1,x); 
+    ptr = sGMemVTable.calloc(1, x);
 	if (ptr) 
 		return ptr; 
 	g_error ("Could not allocate %i bytes", x);
@@ -90,7 +102,7 @@ gpointer g_malloc0 (gsize x)
 gpointer g_try_malloc (gsize x) 
 {
 	if (x)
-		return malloc (x);
+        return sGMemVTable.malloc(x);
 	return 0;
 }
 
@@ -101,5 +113,5 @@ gpointer g_try_realloc (gpointer obj, gsize size)
 		g_free (obj);
 		return 0;
 	} 
-	return realloc (obj, size);
+    return sGMemVTable.realloc(obj, size);
 }
