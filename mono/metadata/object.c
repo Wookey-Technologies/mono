@@ -197,7 +197,7 @@ mono_type_initialization_init (void)
 void
 mono_type_initialization_cleanup (void)
 {
-#if 0
+#if 1
 	/* This is causing race conditions with
 	 * mono_release_type_locks
 	 */

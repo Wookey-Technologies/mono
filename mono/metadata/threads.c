@@ -43,6 +43,8 @@
 
 #include <mono/metadata/gc-internals.h>
 
+
+
 #ifdef HAVE_SIGNAL_H
 #include <signal.h>
 #endif
@@ -3809,18 +3811,37 @@ mono_thread_get_undeniable_exception (void)
 
 #if MONO_SMALL_CONFIG
 #define NUM_STATIC_DATA_IDX 4
-static const int static_data_size [NUM_STATIC_DATA_IDX] = {
+static const int static_data_size[NUM_STATIC_DATA_IDX] = {
 	64, 256, 1024, 4096
 };
 #else
 #define NUM_STATIC_DATA_IDX 8
-static const int static_data_size [NUM_STATIC_DATA_IDX] = {
+static const int static_data_size[NUM_STATIC_DATA_IDX] = {
 	1024, 4096, 16384, 65536, 262144, 1048576, 4194304, 16777216
 };
 #endif
 
 static MonoBitSet *thread_reference_bitmaps [NUM_STATIC_DATA_IDX];
 static MonoBitSet *context_reference_bitmaps [NUM_STATIC_DATA_IDX];
+
+void 
+mono_thread_final_cleanup(void)
+{
+	int i;
+	for (i = 0; i < NUM_STATIC_DATA_IDX; ++i)
+	{
+		if (thread_reference_bitmaps[i])
+		{
+			g_free(thread_reference_bitmaps[i]);
+			thread_reference_bitmaps[i] = 0;
+		}
+	}
+	mono_thread_info_detach();
+	mono_thread_smr_cleanup();
+	mono_g_hash_table_destroy(threads_starting_up);
+	mono_g_hash_table_destroy(threads);
+	threads = NULL;
+}
 
 static void
 mark_slots (void *addr, MonoBitSet **bitmaps, MonoGCMarkFunc mark_func, void *gc_data)

@@ -57,12 +57,7 @@ static MonoLockFreeArrayQueue delayed_free_queue = MONO_LOCK_FREE_ARRAY_QUEUE_IN
 static mono_mutex_t small_id_mutex;
 static int small_id_next;
 static int highest_small_id = -1;
-static union
-{
-	MonoBitSet table;
-	char data[mono_bitset_alloc_size(1, 0)];    
-} small_id;
-static MonoBitSet* small_id_table = NULL;
+static MonoBitSet *small_id_table;
 static int hazardous_pointer_count;
 
 /*
@@ -79,7 +74,7 @@ mono_thread_small_id_alloc (void)
 	mono_os_mutex_lock (&small_id_mutex);
 
 	if (!small_id_table)
-		small_id_table = mono_bitset_mem_new(&small_id, sizeof(small_id), 0);
+		small_id_table = mono_bitset_new (1, 0);
 
 	id = mono_bitset_find_first_unset (small_id_table, small_id_next - 1);
 	if (id == -1)

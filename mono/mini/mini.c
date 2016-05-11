@@ -2079,6 +2079,8 @@ mono_destroy_compile (MonoCompile *cfg)
 
 	mono_debug_free_method (cfg);
 
+	mono_clean_direct_icall();
+
 	g_free (cfg->varinfo);
 	g_free (cfg->vars);
 	g_free (cfg->exception_message);

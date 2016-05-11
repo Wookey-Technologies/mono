@@ -884,7 +884,7 @@ mono_arch_exceptions_init (void)
 		for (l = tramps; l; l = l->next) {
 			MonoTrampInfo *info = (MonoTrampInfo *)l->data;
 
-			mono_register_jit_icall (info->code, g_strdup (info->name), NULL, TRUE);
+			mono_register_jit_icall (info->code, info->name, NULL, TRUE);
 			mono_tramp_info_register (info, NULL);
 		}
 		g_slist_free (tramps);

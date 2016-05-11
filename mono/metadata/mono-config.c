@@ -593,6 +593,9 @@ mono_config_for_assembly (MonoImage *assembly)
 		if (got_it)
 			break;
 	}
+#ifdef HOST_WIN32
+	g_free ((void*)home);
+#endif
 	g_free (cfg_name);
 }
 
