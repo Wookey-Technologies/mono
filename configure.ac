@@ -9,8 +9,6 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_SYSTEM
 AC_CANONICAL_HOST
 
-AH_BOTTOM([#include "linden_config.h"])
-
 # Gross hack to enable 'make dist' on automake 1.9+tar 1.14.
 # The extra brackets are to foil regex-based scans.
 m4_ifdef([_A][M_PROG_TAR],[_A][M_SET_OPTION([tar-ustar])])
@@ -1057,7 +1055,8 @@ AC_TRY_COMPILE([
 	};
 ], [], [
 	AC_MSG_RESULT(yes)
-	AC_DEFINE_UNQUOTED(MONO_ZERO_LEN_ARRAY, 0, [Length of zero length arrays])
+  AH_BOTTOM([#include "linden_config.h"])
+	#AC_DEFINE_UNQUOTED(MONO_ZERO_LEN_ARRAY, 0, [Length of zero length arrays])
 ], [
 	AC_MSG_RESULT(no)
 	AC_DEFINE_UNQUOTED(MONO_ZERO_LEN_ARRAY, 1, [Length of zero length arrays])

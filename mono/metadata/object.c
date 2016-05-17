@@ -3142,11 +3142,11 @@ mono_vtable_get_static_field_data (MonoVTable *vt)
 	return vt->vtable [vt->klass->vtable_size];
 }
 
-void *
+void
 mono_vtable_free_static_field_data (MonoVTable *vt)
 {
 	if (!vt->has_static_fields)
-		return NULL;
+		return;
 	mono_gc_free_fixed (vt->vtable [vt->klass->vtable_size]);
 	vt->vtable [vt->klass->vtable_size] = NULL;
 }

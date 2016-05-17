@@ -1620,7 +1620,7 @@ mono_field_static_get_value_for_thread (MonoInternalThread *thread, MonoVTable *
 MONO_API void *
 mono_vtable_get_static_field_data (MonoVTable *vt);
 
-void *
+void
 mono_vtable_free_static_field_data (MonoVTable *vt);
 
 char *

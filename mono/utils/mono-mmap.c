@@ -83,10 +83,16 @@ aligned_address (char *mem, size_t size, size_t alignment)
 	return aligned;
 }
 
+int mono_pagesize_default (void);
+void* mono_valloc_default (void *addr, size_t length, int flags);
+void* mono_valloc_aligned_default (size_t length, size_t alignment, int flags);
+int mono_vfree_default (void *addr, size_t length);
+int mono_mprotect_default (void *addr, size_t length, int flags);
+
 #ifdef HOST_WIN32
 
-int
-mono_pagesize (void)
+static int
+mono_pagesize_default (void)
 {
 	SYSTEM_INFO info;
 	static int saved_pagesize = 0;
@@ -116,8 +122,8 @@ prot_from_flags (int flags)
 	return prot;
 }
 
-void*
-mono_valloc (void *addr, size_t length, int flags)
+static void*
+mono_valloc_default (void *addr, size_t length, int flags)
 {
 	void *ptr;
 	int mflags = MEM_RESERVE|MEM_COMMIT;
@@ -128,8 +134,8 @@ mono_valloc (void *addr, size_t length, int flags)
 	return ptr;
 }
 
-void*
-mono_valloc_aligned (size_t length, size_t alignment, int flags)
+static void*
+mono_valloc_aligned_default (size_t length, size_t alignment, int flags)
 {
 	int prot = prot_from_flags (flags);
 	char *mem = VirtualAlloc (NULL, length + alignment, MEM_RESERVE, prot);
@@ -148,8 +154,8 @@ mono_valloc_aligned (size_t length, size_t alignment, int flags)
 
 #define HAVE_VALLOC_ALIGNED
 
-int
-mono_vfree (void *addr, size_t length)
+static int
+mono_vfree_default (void *addr, size_t length)
 {
 	MEMORY_BASIC_INFORMATION mbi;
 	SIZE_T query_result = VirtualQuery (addr, &mbi, sizeof (mbi));
@@ -208,8 +214,9 @@ mono_file_unmap (void *addr, void *handle)
 	return 0;
 }
 
-int
-mono_mprotect (void *addr, size_t length, int flags)
+
+static int
+mono_mprotect_default (void *addr, size_t length, int flags)
 {
 	DWORD oldprot;
 	int prot = prot_from_flags (flags);
@@ -268,7 +275,7 @@ mono_shared_area_instances (void **array, int count)
  * Returns: the page size in bytes.
  */
 int
-mono_pagesize (void)
+mono_pagesize_default (void)
 {
 	static int saved_pagesize = 0;
 	if (saved_pagesize)
@@ -306,7 +313,7 @@ prot_from_flags (int flags)
  * Returns: NULL on failure, the address of the memory area otherwise
  */
 void*
-mono_valloc (void *addr, size_t length, int flags)
+mono_valloc_default (void *addr, size_t length, int flags)
 {
 	void *ptr;
 	int mflags = 0;
@@ -346,7 +353,7 @@ mono_valloc (void *addr, size_t length, int flags)
  * Returns: 0 on success.
  */
 int
-mono_vfree (void *addr, size_t length)
+mono_vfree_default (void *addr, size_t length)
 {
 	int res;
 	BEGIN_CRITICAL_SECTION;
@@ -435,7 +442,7 @@ mono_file_unmap (void *addr, void *handle)
  */
 #if defined(__native_client__)
 int
-mono_mprotect (void *addr, size_t length, int flags)
+mono_mprotect_default(void *addr, size_t length, int flags)
 {
 	int prot = prot_from_flags (flags);
 	void *new_addr;
@@ -448,7 +455,7 @@ mono_mprotect (void *addr, size_t length, int flags)
 }
 #else
 int
-mono_mprotect (void *addr, size_t length, int flags)
+mono_mprotect_default(void *addr, size_t length, int flags)
 {
 	int prot = prot_from_flags (flags);
 
@@ -475,19 +482,19 @@ mono_mprotect (void *addr, size_t length, int flags)
 
 /* dummy malloc-based implementation */
 int
-mono_pagesize (void)
+mono_pagesize_default (void)
 {
 	return 4096;
 }
 
 void*
-mono_valloc (void *addr, size_t length, int flags)
+mono_valloc_default (void *addr, size_t length, int flags)
 {
 	return malloc (length);
 }
 
 void*
-mono_valloc_aligned (size_t length, size_t alignment, int flags)
+mono_valloc_aligned_default (size_t length, size_t alignment, int flags)
 {
 	g_assert_not_reached ();
 }
@@ -495,14 +502,14 @@ mono_valloc_aligned (size_t length, size_t alignment, int flags)
 #define HAVE_VALLOC_ALIGNED
 
 int
-mono_vfree (void *addr, size_t length)
+mono_vfree_default (void *addr, size_t length)
 {
 	free (addr);
 	return 0;
 }
 
 int
-mono_mprotect (void *addr, size_t length, int flags)
+mono_mprotect_default (void *addr, size_t length, int flags)
 {
 	if (flags & MONO_MMAP_DISCARD) {
 		memset (addr, 0, length);
@@ -746,10 +753,10 @@ mono_shared_area_instances (void **array, int count)
 
 #ifndef HAVE_VALLOC_ALIGNED
 void*
-mono_valloc_aligned (size_t size, size_t alignment, int flags)
+mono_valloc_aligned_default (size_t size, size_t alignment, int flags)
 {
 	/* Allocate twice the memory to be able to put the block on an aligned address */
-	char *mem = (char *) mono_valloc (NULL, size + alignment, flags);
+	char *mem = (char*) mono_valloc_default (NULL, size + alignment, flags);
 	char *aligned;
 
 	if (!mem)
@@ -758,13 +765,68 @@ mono_valloc_aligned (size_t size, size_t alignment, int flags)
 	aligned = aligned_address (mem, size, alignment);
 
 	if (aligned > mem)
-		mono_vfree (mem, aligned - mem);
+		mono_vfree_default (mem, aligned - mem);
 	if (aligned + size < mem + size + alignment)
-		mono_vfree (aligned + size, (mem + size + alignment) - (aligned + size));
+		mono_vfree_default (aligned + size, (mem + size + alignment) - (aligned + size));
 
 	return aligned;
 }
 #endif
+
+
+
+static MonoAllocMethods gMonoAllocMethods =
+{
+	mono_pagesize_default,
+	mono_valloc_default,
+	mono_valloc_aligned_default,
+	mono_vfree_default,
+	mono_mprotect_default
+};
+
+void
+mono_set_alloc_methods (MonoAllocMethods* methods)
+{
+	gMonoAllocMethods = *methods;
+}
+
+MonoAllocMethods
+mono_get_alloc_methods (void)
+{
+	return gMonoAllocMethods;
+}
+
+int
+mono_mprotect (void *addr, size_t length, int flags)
+{
+	return gMonoAllocMethods.mono_mprotect (addr, length, flags);
+}
+
+int
+mono_pagesize (void)
+{
+	return gMonoAllocMethods.mono_pagesize ();
+}
+
+void *
+mono_valloc
+(void *addr, size_t length, int flags)
+{
+	return gMonoAllocMethods.mono_valloc (addr, length, flags);
+}
+
+void *
+mono_valloc_aligned(size_t length, size_t alignment, int flags)
+{
+	return gMonoAllocMethods.mono_valloc_aligned (length, alignment, flags);
+}
+
+int
+mono_vfree(void *addr, size_t length)
+{
+	return gMonoAllocMethods.mono_vfree (addr, length);
+}
+
 
 int
 mono_pages_not_faulted (void *addr, size_t size)

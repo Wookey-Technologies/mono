@@ -891,4 +891,7 @@ mono_win32_compat_CopyMemory
 mono_win32_compat_FillMemory
 mono_win32_compat_MoveMemory
 mono_win32_compat_ZeroMemory
+mono_set_alloc_methods
+mono_get_alloc_methods
 g_mem_set_vtable
+mono_thread_final_cleanup
