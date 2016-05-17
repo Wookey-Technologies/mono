@@ -5868,7 +5868,14 @@ MonoString*
 ves_icall_System_Environment_get_UserName (void)
 {
 	/* using glib is more portable */
-	return mono_string_new (mono_domain_get (), g_get_user_name ());
+	MonoString* str;
+	char *username = g_get_user_name ();
+	str = mono_string_new (mono_domain_get (), username);
+
+#if defined (TARGET_WIN32)
+	g_free(username);
+#endif
+	return str;
 }
 
 
@@ -6284,7 +6291,7 @@ ves_icall_System_Text_EncodingHelper_InternalCodePage (gint32 *int_code_page)
 	*int_code_page = -1;
 
 	g_get_charset (&cset);
-	c = codepage = strdup (cset);
+	c = codepage = g_strdup (cset);
 	for (c = codepage; *c; c++){
 		if (isascii (*c) && isalpha (*c))
 			*c = tolower (*c);
@@ -6311,7 +6318,7 @@ ves_icall_System_Text_EncodingHelper_InternalCodePage (gint32 *int_code_page)
 	
 	if (strstr (codepage, "utf_8") != NULL)
 		*int_code_page |= 0x10000000;
-	free (codepage);
+	g_free (codepage);
 	
 	if (want_name && *int_code_page == -1)
 		return mono_string_new (mono_domain_get (), cset);

@@ -1158,11 +1158,16 @@ ves_icall_System_Threading_InternalThread_Thread_free_internal (MonoInternalThre
 		g_free (synch_cs);
 	}
 
-	if (this_obj->name) {
-		void *name = this_obj->name;
-		this_obj->name = NULL;
-		g_free (name);
+	if (this_obj->static_data) {
+		mono_free_static_data (this_obj->static_data);
+		this_obj->static_data = NULL;
 	}
+
+	if (this_obj->appdomain_refs) {
+		ref_stack_destroy (this_obj->appdomain_refs);
+		this_obj->appdomain_refs = NULL;
+	}
+
 }
 
 void
@@ -3828,19 +3833,23 @@ void
 mono_thread_final_cleanup(void)
 {
 	int i;
-	for (i = 0; i < NUM_STATIC_DATA_IDX; ++i)
-	{
+	for (i = 0; i < NUM_STATIC_DATA_IDX; ++i) {
 		if (thread_reference_bitmaps[i])
 		{
 			g_free(thread_reference_bitmaps[i]);
 			thread_reference_bitmaps[i] = 0;
 		}
 	}
-	mono_thread_info_detach();
-	mono_thread_smr_cleanup();
-	mono_g_hash_table_destroy(threads_starting_up);
-	mono_g_hash_table_destroy(threads);
+	mono_thread_info_detach ();
+
+	mono_g_hash_table_destroy (threads_starting_up);
+	mono_g_hash_table_destroy (threads);
 	threads = NULL;
+	mono_thread_smr_cleanup ();
+
+#ifndef HOST_WIN32
+	g_hash_table_destroy (joinable_threads);
+#endif
 }
 
 static void

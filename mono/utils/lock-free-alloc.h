@@ -52,6 +52,7 @@ void mono_lock_free_allocator_init_allocator (MonoLockFreeAllocator *heap, MonoL
 
 gpointer mono_lock_free_alloc (MonoLockFreeAllocator *heap);
 void mono_lock_free_free (gpointer ptr, size_t block_size);
+void mono_lock_free_cleanup (void);
 
 gboolean mono_lock_free_allocator_check_consistency (MonoLockFreeAllocator *heap);
 

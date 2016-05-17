@@ -145,6 +145,7 @@ void g_free (void *ptr);
 gpointer g_realloc (gpointer obj, gsize size);
 gpointer g_malloc (gsize x);
 gpointer g_malloc0 (gsize x);
+gpointer g_calloc (gsize n, gsize x);
 gpointer g_try_malloc (gsize x);
 gpointer g_try_realloc (gpointer obj, gsize size);
 
@@ -784,6 +785,7 @@ gchar  *g_find_program_in_path (const gchar *program);
 gchar  *g_get_current_dir      (void);
 gboolean g_path_is_absolute    (const char *filename);
 
+void g_env_cleanup             (void);
 const gchar *g_get_home_dir    (void);
 const gchar *g_get_tmp_dir     (void);
 const gchar *g_get_user_name   (void);

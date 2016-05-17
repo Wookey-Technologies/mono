@@ -99,6 +99,17 @@ gpointer g_malloc0 (gsize x)
 	g_error ("Could not allocate %i bytes", x);
 }
 
+gpointer g_calloc(gsize n, gsize x)
+{
+    gpointer ptr;
+    if (!x || !n)
+        return 0;
+    ptr = calloc(n, x);
+    if (ptr)
+        return ptr;
+    g_error("Could not allocate %i (%i * %i) bytes", x*n, n, x);
+}
+
 gpointer g_try_malloc (gsize x) 
 {
 	if (x)

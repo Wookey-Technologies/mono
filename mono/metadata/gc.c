@@ -867,8 +867,8 @@ mono_gc_cleanup (void)
 			g_assert (finalizer_thread_exited);
 		}
 
-		g_free(gc_thread->synch_cs);
-		g_free(gc_thread->name);
+		g_free (gc_thread->synch_cs);
+		g_free (gc_thread->name);
 		gc_thread = NULL;
 		mono_gc_base_cleanup ();
 	}
@@ -877,6 +877,7 @@ mono_gc_cleanup (void)
 
 	mono_coop_mutex_destroy (&finalizer_mutex);
 	mono_coop_mutex_destroy (&reference_queue_mutex);
+
 }
 
 gboolean

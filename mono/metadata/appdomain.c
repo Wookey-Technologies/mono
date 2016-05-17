@@ -365,6 +365,8 @@ mono_runtime_cleanup (MonoDomain *domain)
 	mono_type_initialization_cleanup ();
 
 	mono_monitor_cleanup ();
+
+	g_env_cleanup();
 }
 
 static MonoDomainFunc quit_function = NULL;
@@ -496,8 +498,10 @@ mono_domain_create_appdomain_internal (char *friendly_name, MonoAppDomainSetup *
 #ifndef DISABLE_SHADOW_COPY
 	/*FIXME, guard this for when the debugger is not running */
 	shadow_location = get_shadow_assembly_location_base (data, &error);
-	if (!mono_error_ok (&error))
-		mono_error_raise_exception (&error);
+	if (!mono_error_ok (&error)) {
+		g_free (shadow_location);
+		mono_error_raise_exception(&error);
+	}
 	g_free (shadow_location);
 #endif
 
@@ -1322,6 +1326,7 @@ get_shadow_assembly_location_base (MonoDomain *domain, MonoError *error)
 	char *cache_path, *appname;
 	char *userdir;
 	char *location;
+	char *username;
 
 	mono_error_init (error);
 	
@@ -1349,9 +1354,14 @@ get_shadow_assembly_location_base (MonoDomain *domain, MonoError *error)
 		g_free (appname);
 		g_free (cache_path);
 	} else {
-		userdir = g_strdup_printf ("%s-mono-cachepath", g_get_user_name ());
+		username = g_get_user_name ();
+		userdir = g_strdup_printf ("%s-mono-cachepath", username);
 		location = g_build_filename (g_get_tmp_dir (), userdir, "assembly", "shadow", NULL);
 		g_free (userdir);
+#ifdef TARGET_WIN32
+		g_free (username);
+#endif
+
 	}
 	return location;
 }
@@ -2198,8 +2208,8 @@ clear_cached_vtable (MonoVTable *vtable)
 	runtime_info = klass->runtime_info;
 	if (runtime_info && runtime_info->max_domain >= domain->domain_id)
 		runtime_info->domain_vtables [domain->domain_id] = NULL;
-	if (klass->has_static_refs && (data = mono_vtable_get_static_field_data (vtable)))
-		mono_gc_free_fixed (data);
+	if (klass->has_static_refs)
+		mono_vtable_free_static_field_data (vtable);
 }
 
 static G_GNUC_UNUSED void

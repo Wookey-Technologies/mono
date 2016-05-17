@@ -2826,6 +2826,10 @@ mono_method_get_header (MonoMethod *method)
 		mono_metadata_free_mh (header);
 
 		return iheader;
+		// Check for a set header again inside the lock.
+			// Another thread set the header while we were building this one.
+			iheader->is_transient = TRUE; // Force clean up to actually free the header.
+
 	}
 
 	if (method->wrapper_type != MONO_WRAPPER_NONE || method->sre_method) {
