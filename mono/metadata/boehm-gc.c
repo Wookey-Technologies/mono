@@ -409,7 +409,7 @@ mono_object_is_alive (MonoObject* o)
 }
 
 int
-mono_gc_walk_heap (int flags, MonoGCReferences callback, void *data)
+mono_gc_walk_heap (int flags, MonoGCReferences callback, int chunk, int total_chunks, int section_flags, void *data)
 {
 	return 1;
 }

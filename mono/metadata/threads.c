@@ -43,8 +43,6 @@
 
 #include <mono/metadata/gc-internals.h>
 
-
-
 #ifdef HAVE_SIGNAL_H
 #include <signal.h>
 #endif
