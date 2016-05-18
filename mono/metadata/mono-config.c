@@ -588,14 +588,12 @@ mono_config_for_assembly (MonoImage *assembly)
 		cfg = g_build_filename (home, ".mono", "assemblies", aname, cfg_name, NULL);
 		got_it += mono_config_parse_file_with_context (&state, cfg);
 		g_free (cfg);
+		g_free ((void*)home);
 #endif
 		g_free (aname);
 		if (got_it)
 			break;
 	}
-#ifdef HOST_WIN32
-	g_free ((void*)home);
-#endif
 	g_free (cfg_name);
 }
 
