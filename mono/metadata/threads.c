@@ -3840,9 +3840,12 @@ mono_thread_final_cleanup(void)
 	}
 	mono_thread_info_detach ();
 
+	mono_g_hash_table_destroy (contexts);
 	mono_g_hash_table_destroy (threads_starting_up);
 	mono_g_hash_table_destroy (threads);
 	threads = NULL;
+	threads_starting_up = NULL;
+	contexts = NULL;
 	mono_thread_smr_cleanup ();
 
 #ifndef HOST_WIN32

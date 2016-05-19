@@ -939,8 +939,9 @@ mono_cleanup (void)
 	mono_images_cleanup ();
 	mono_metadata_cleanup ();
 
-#ifdef HAVE_SGEN_GC
-#endif
+	mono_gc_free_fixed (appdomains_list);
+	appdomains_list = NULL;
+
 	mono_native_tls_free (appdomain_thread_id);
 	mono_coop_mutex_destroy (&appdomains_mutex);
 
