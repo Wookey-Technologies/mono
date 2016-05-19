@@ -878,6 +878,7 @@ void sgen_nursery_alloc_prepare_for_minor (void);
 void sgen_nursery_alloc_prepare_for_major (void);
 
 GCObject* sgen_alloc_for_promotion (GCObject *obj, size_t objsize, gboolean has_references);
+void sgen_alloc_nursery_cleanup (void);
 
 GCObject* sgen_alloc_obj_nolock (GCVTable vtable, size_t size);
 GCObject* sgen_try_alloc_obj_nolock (GCVTable vtable, size_t size);

@@ -3848,6 +3848,10 @@ mono_thread_final_cleanup(void)
 	contexts = NULL;
 	mono_thread_smr_cleanup ();
 
+#ifdef HAVE_SGEN_GC
+	sgen_alloc_nursery_cleanup();
+#endif
+
 #ifndef HOST_WIN32
 	g_hash_table_destroy (joinable_threads);
 #endif

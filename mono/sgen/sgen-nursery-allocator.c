@@ -924,4 +924,10 @@ sgen_nursery_allocator_set_nursery_bounds (char *start, char *end)
 	sgen_minor_collector.init_nursery (&mutator_allocator, start, end);
 }
 
+void
+sgen_alloc_nursery_cleanup (void)
+{
+	g_free (sgen_space_bitmap);
+	sgen_space_bitmap = NULL;
+}
 #endif
