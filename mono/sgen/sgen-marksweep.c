@@ -1850,6 +1850,42 @@ compare_pointers (const void *va, const void *vb) {
 }
 #endif
 
+static void
+free_first_empty_block ()
+{
+	void *next = *(void**)empty_blocks;
+	sgen_free_os_memory (empty_blocks, MS_BLOCK_SIZE, SGEN_ALLOC_HEAP);
+	empty_blocks = next;
+	/*
+	* Needs not be atomic because this is running
+	* single-threaded.
+	*/
+	--num_empty_blocks;
+
+	++stat_major_blocks_freed;
+#if SIZEOF_VOID_P != 8
+	++stat_major_blocks_freed_individual;
+#endif
+}
+
+
+static void
+free_all_empty_blocks ()
+{
+	while (num_empty_blocks > 0)
+	{
+		free_first_empty_block ();
+	}
+}
+
+static void
+free_free_block_lists (MSBlockInfo ***lists)
+{
+	int i;
+	for (i = 0; i < MS_BLOCK_TYPE_MAX; ++i)
+		sgen_free_internal_dynamic (lists[i], sizeof (MSBlockInfo*) * num_block_obj_sizes, INTERNAL_MEM_MS_TABLES);
+}
+
 /*
  * This is called with sweep completed and the world stopped.
  */
@@ -1992,19 +2028,7 @@ major_free_swept_blocks (size_t allowance)
 #endif
 
 	while (num_empty_blocks > section_reserve) {
-		void *next = *(void**)empty_blocks;
-		sgen_free_os_memory (empty_blocks, MS_BLOCK_SIZE, SGEN_ALLOC_HEAP);
-		empty_blocks = next;
-		/*
-		 * Needs not be atomic because this is running
-		 * single-threaded.
-		 */
-		--num_empty_blocks;
-
-		++stat_major_blocks_freed;
-#if SIZEOF_VOID_P != 8
-		++stat_major_blocks_freed_individual;
-#endif
+		free_first_empty_block ();
 	}
 }
 
@@ -2534,6 +2558,39 @@ void
 sgen_marksweep_conc_init (SgenMajorCollector *collector)
 {
 	sgen_marksweep_init_internal (collector, TRUE);
+}
+
+void
+sgen_marksweep_cleanup ()
+{
+	MSBlockInfo *block;
+	FOREACH_BLOCK_NO_LOCK (block) {
+		sgen_free_os_memory (block, MS_BLOCK_SIZE, SGEN_ALLOC_HEAP);
+	} END_FOREACH_BLOCK_NO_LOCK;
+	sgen_pointer_queue_free (&allocated_blocks);
+	memset (&allocated_blocks, 0, sizeof (allocated_blocks));
+	sgen_pin_cleanup ();
+	free_all_empty_blocks ();
+	sgen_free_internal_dynamic (nursery_section->scan_starts, nursery_section->num_scan_start * sizeof (char*), INTERNAL_MEM_SCAN_STARTS);
+	free_free_block_lists (free_block_lists);
+	sgen_free_internal (nursery_section, INTERNAL_MEM_SECTION);
+
+
+#ifdef SGEN_HAVE_OVERLAPPING_CARDS
+	sgen_free_os_memory (sgen_shadow_cardtable, CARD_COUNT_IN_BYTES, 0);
+#endif
+
+	sgen_free_os_memory (sgen_cardtable, CARD_COUNT_IN_BYTES, 0);
+
+	sgen_hash_table_clean (&roots_hash[ROOT_TYPE_NORMAL]);
+	sgen_hash_table_clean (&roots_hash[ROOT_TYPE_PINNED]);
+	sgen_hash_table_clean (&roots_hash[ROOT_TYPE_WBARRIER]);
+	sgen_free_internal_dynamic (evacuate_block_obj_sizes, ms_calculate_block_obj_sizes (MS_BLOCK_OBJ_SIZE_FACTOR, NULL), INTERNAL_MEM_MS_TABLES);
+
+	sgen_fin_weak_hash_cleanup ();
+
+	sgen_free_internal_dynamic (block_obj_sizes, sizeof (int) * num_block_obj_sizes, INTERNAL_MEM_MS_TABLES);
+	mono_lock_free_cleanup ();
 }
 
 #endif

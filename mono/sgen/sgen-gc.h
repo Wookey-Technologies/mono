@@ -658,6 +658,7 @@ void sgen_marksweep_fixed_init (SgenMajorCollector *collector);
 void sgen_marksweep_par_init (SgenMajorCollector *collector);
 void sgen_marksweep_fixed_par_init (SgenMajorCollector *collector);
 void sgen_marksweep_conc_init (SgenMajorCollector *collector);
+void sgen_marksweep_cleanup (void);
 SgenMajorCollector* sgen_get_major_collector (void);
 
 
@@ -753,6 +754,7 @@ sgen_safe_object_get_size_unaligned (GCObject *obj)
 gboolean sgen_object_is_live (GCObject *obj);
 
 void  sgen_init_fin_weak_hash (void);
+void  sgen_fin_weak_hash_cleanup (void);
 
 /* FIXME: move the toggleref stuff out of here */
 void sgen_mark_togglerefs (char *start, char *end, ScanCopyContext ctx);

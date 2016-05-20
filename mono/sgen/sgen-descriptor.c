@@ -109,6 +109,13 @@ alloc_complex_descriptor (gsize *bitmap, int numbits)
 	return res;
 }
 
+void
+sgen_complex_descriptor_cleanup (void)
+{
+	g_free (complex_descriptors);
+	complex_descriptors = NULL;
+}
+
 gsize*
 sgen_get_complex_descriptor (SgenDescriptor desc)
 {

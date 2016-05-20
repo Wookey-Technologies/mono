@@ -927,7 +927,21 @@ sgen_nursery_allocator_set_nursery_bounds (char *start, char *end)
 void
 sgen_alloc_nursery_cleanup (void)
 {
+	SgenFragment* fragment = fragment_freelist;
+	SgenFragment* next;
+
+	sgen_free_os_memory (sgen_nursery_start, sgen_nursery_end - sgen_nursery_start, SGEN_ALLOC_HEAP);
+	sgen_nursery_start = sgen_nursery_end = NULL;
 	g_free (sgen_space_bitmap);
 	sgen_space_bitmap = NULL;
+
+	sgen_fragment_allocator_release (&mutator_allocator);
+// 	fragment = fragment_freelist;
+// 	while (fragment) {
+// 		next = fragment->next_in_order;
+// 		sgen_free_internal (fragment, INTERNAL_MEM_FRAGMENT);
+// 		fragment = next;
+// 	}
+// 	fragment_freelist = NULL;
 }
 #endif

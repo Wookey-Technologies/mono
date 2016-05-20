@@ -295,4 +295,11 @@ sgen_cement_clear_below_threshold (void)
 	}
 }
 
+void
+sgen_pin_cleanup (void)
+{
+	sgen_free_internal_dynamic (pin_queue.data, sizeof (void*) * pin_queue.size, pin_queue.mem_type);
+	pin_queue.data = NULL;
+}
+
 #endif /* HAVE_SGEN_GC */

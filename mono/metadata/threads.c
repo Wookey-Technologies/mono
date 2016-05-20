@@ -3849,7 +3849,8 @@ mono_thread_final_cleanup(void)
 	mono_thread_smr_cleanup ();
 
 #ifdef HAVE_SGEN_GC
-	sgen_alloc_nursery_cleanup();
+	sgen_alloc_nursery_cleanup ();
+	sgen_complex_descriptor_cleanup ();
 #endif
 
 #ifndef HOST_WIN32

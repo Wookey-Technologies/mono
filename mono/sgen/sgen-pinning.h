@@ -61,4 +61,5 @@ gboolean sgen_cement_lookup_or_register (GCObject *obj);
 void sgen_pin_cemented_objects (void);
 void sgen_cement_clear_below_threshold (void);
 
+void sgen_pin_cleanup (void);
 #endif
