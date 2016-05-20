@@ -4009,7 +4009,7 @@ mini_cleanup (MonoDomain *domain)
 #endif
 
 	/* This accesses metadata so needs to be called before runtime shutdown */
-	print_jit_stats ();
+ 	print_jit_stats ();
 
 	mono_profiler_shutdown ();
 

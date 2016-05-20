@@ -46,7 +46,7 @@
 #define MS_BLOCK_SIZE	ARCH_MIN_MS_BLOCK_SIZE
 #define MS_BLOCK_SIZE_SHIFT	ARCH_MIN_MS_BLOCK_SIZE_SHIFT
 #else
-#define MS_BLOCK_SIZE_SHIFT     14      /* INT FASTENABLE */
+#define MS_BLOCK_SIZE_SHIFT     16      /* INT FASTENABLE */
 #define MS_BLOCK_SIZE           (1 << MS_BLOCK_SIZE_SHIFT)
 #endif
 #define MAJOR_SECTION_SIZE	MS_BLOCK_SIZE
@@ -56,7 +56,7 @@
  * Don't allocate single blocks, but alloc a contingent of this many
  * blocks in one swoop.  This must be a power of two.
  */
-#define MS_BLOCK_ALLOC_NUM	32
+#define MS_BLOCK_ALLOC_NUM	1
 
 /*
  * Number of bytes before the first object in a block.  At the start
@@ -2564,7 +2564,7 @@ void
 sgen_marksweep_cleanup ()
 {
 	MSBlockInfo *block;
-	FOREACH_BLOCK_NO_LOCK (block) {
+	FOREACH_BLOCK_NO_LOCK_CONDITION (TRUE, block) {
 		sgen_free_os_memory (block, MS_BLOCK_SIZE, SGEN_ALLOC_HEAP);
 	} END_FOREACH_BLOCK_NO_LOCK;
 	sgen_pointer_queue_free (&allocated_blocks);
@@ -2574,7 +2574,6 @@ sgen_marksweep_cleanup ()
 	sgen_free_internal_dynamic (nursery_section->scan_starts, nursery_section->num_scan_start * sizeof (char*), INTERNAL_MEM_SCAN_STARTS);
 	free_free_block_lists (free_block_lists);
 	sgen_free_internal (nursery_section, INTERNAL_MEM_SECTION);
-
 
 #ifdef SGEN_HAVE_OVERLAPPING_CARDS
 	sgen_free_os_memory (sgen_shadow_cardtable, CARD_COUNT_IN_BYTES, 0);
