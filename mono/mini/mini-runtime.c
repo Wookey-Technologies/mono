@@ -4067,6 +4067,8 @@ mini_cleanup (MonoDomain *domain)
 #ifdef USE_JUMP_TABLES
 	mono_jumptable_cleanup ();
 #endif
+	mono_clean_direct_icall ();
+	mono_gc_final_cleanup ();
 }
 
 void

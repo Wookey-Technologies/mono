@@ -3257,4 +3257,17 @@ sgen_timestamp (void)
 	return SGEN_TV_ELAPSED (sgen_init_timestamp, timestamp);
 }
 
+void
+mono_gc_final_cleanup (void)
+{
+	GrayQueueSection* next;
+	GrayQueueSection* current = gray_queue.free_list;
+	while (current)
+	{
+		next = current->next;
+		sgen_gray_object_free_queue_section (current);
+		current = next;
+	}
+}
+
 #endif /* HAVE_SGEN_GC */
