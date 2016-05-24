@@ -936,12 +936,12 @@ sgen_alloc_nursery_cleanup (void)
 	sgen_space_bitmap = NULL;
 
 	sgen_fragment_allocator_release (&mutator_allocator);
-// 	fragment = fragment_freelist;
-// 	while (fragment) {
-// 		next = fragment->next_in_order;
-// 		sgen_free_internal (fragment, INTERNAL_MEM_FRAGMENT);
-// 		fragment = next;
-// 	}
-// 	fragment_freelist = NULL;
+ 	fragment = fragment_freelist;
+ 	while (fragment) {
+ 		next = fragment->next_in_order;
+ 		sgen_free_internal (fragment, INTERNAL_MEM_FRAGMENT);
+ 		fragment = next;
+ 	}
+ 	fragment_freelist = NULL;
 }
 #endif

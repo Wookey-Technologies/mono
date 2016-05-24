@@ -2584,6 +2584,11 @@ sgen_marksweep_cleanup ()
 	sgen_hash_table_clean (&roots_hash[ROOT_TYPE_NORMAL]);
 	sgen_hash_table_clean (&roots_hash[ROOT_TYPE_PINNED]);
 	sgen_hash_table_clean (&roots_hash[ROOT_TYPE_WBARRIER]);
+
+  sgen_free_internal_dynamic (sweep_slots_available, sizeof (size_t) * num_block_obj_sizes, INTERNAL_MEM_MS_TABLES);
+  sgen_free_internal_dynamic (sweep_slots_used, sizeof (size_t) * num_block_obj_sizes, INTERNAL_MEM_MS_TABLES);
+  sgen_free_internal_dynamic (sweep_num_blocks, sizeof (size_t) * num_block_obj_sizes, INTERNAL_MEM_MS_TABLES);
+
 	sgen_free_internal_dynamic (evacuate_block_obj_sizes, ms_calculate_block_obj_sizes (MS_BLOCK_OBJ_SIZE_FACTOR, NULL), INTERNAL_MEM_MS_TABLES);
 
 	sgen_fin_weak_hash_cleanup ();
