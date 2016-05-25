@@ -3851,6 +3851,7 @@ mono_thread_final_cleanup(void)
 	sgen_alloc_nursery_cleanup ();
 	sgen_complex_descriptor_cleanup ();
 	sgen_marksweep_cleanup ();
+	sgen_thread_pool_cleanup ();
 #endif
 	mono_thread_smr_cleanup ();
 

@@ -256,4 +256,9 @@ sgen_thread_pool_is_thread_pool_thread (MonoNativeThreadId some_thread)
 	return some_thread == thread;
 }
 
+void sgen_thread_pool_cleanup (void)
+{
+	sgen_pointer_queue_free (&job_queue);
+}
+
 #endif
