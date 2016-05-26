@@ -3268,6 +3268,9 @@ mono_gc_final_cleanup (void)
 		sgen_gray_object_free_queue_section (current);
 		current = next;
 	}
+	sgen_pointer_queue_free (&fin_ready_queue);
+	sgen_pointer_queue_free (&critical_fin_queue);
+
 }
 
 #endif /* HAVE_SGEN_GC */
