@@ -1007,6 +1007,8 @@ void sgen_debug_dump_heap (const char *type, int num, const char *reason);
 void sgen_debug_verify_nursery (gboolean do_dump_nursery_content);
 void sgen_debug_check_nursery_is_clean (void);
 
+void handle_data_free_all();
+
 /* Environment variable parsing */
 
 #define MONO_GC_PARAMS_NAME	"MONO_GC_PARAMS"

@@ -3271,6 +3271,8 @@ mono_gc_final_cleanup (void)
 	sgen_pointer_queue_free (&fin_ready_queue);
 	sgen_pointer_queue_free (&critical_fin_queue);
 
+    handle_data_free_all();
+
 }
 
 #endif /* HAVE_SGEN_GC */

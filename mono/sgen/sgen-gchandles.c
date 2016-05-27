@@ -159,6 +159,18 @@ gc_handles_for_type (GCHandleType type)
 	return type < HANDLE_TYPE_MAX ? &gc_handles [type] : NULL;
 }
 
+void
+handle_data_free_all()
+{
+    for (GCHandleType type = 0; type < HANDLE_TYPE_MAX; ++type)
+    {
+        for (guint bucket = 0; gc_handles_for_type(type)->entries[bucket] != NULL; ++bucket)
+        {
+            g_free(gc_handles_for_type(type)->entries[bucket]);
+        }
+    }
+}
+
 /* This assumes that the world is stopped. */
 void
 sgen_mark_normal_gc_handles (void *addr, SgenUserMarkFunc mark_func, void *gc_data)
