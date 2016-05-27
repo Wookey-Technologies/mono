@@ -480,6 +480,7 @@ mono_tramp_info_free (MonoTrampInfo *info)
 	g_free (info->name);
 
 	// FIXME: ji
+	g_free (info->uw_info);
 	mono_free_unwind_info (info->unwind_ops);
 	g_free (info);
 }
@@ -526,7 +527,7 @@ mono_tramp_info_register (MonoTrampInfo *info, MonoDomain *domain)
 		copy->uw_info = mono_unwind_ops_encode (info->unwind_ops, &copy->uw_info_len);
 	} else {
 		/* Trampolines from aot have the unwind ops already encoded */
-		copy->uw_info = info->uw_info;
+		copy->uw_info = g_memdup (info->uw_info, info->uw_info_len);
 		copy->uw_info_len = info->uw_info_len;
 	}
 
