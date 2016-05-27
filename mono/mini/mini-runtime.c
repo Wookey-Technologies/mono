@@ -3072,14 +3072,15 @@ mini_init_delegate (MonoDelegate *del)
 		del->extra_arg = mini_get_delegate_arg (del->method, del->method_ptr);
 }
 
+static guint8 **delegate_virtual_invoke_cache = NULL;
+static int delegate_virtual_invoke_cache_size = 0;
+
 gpointer
 mono_get_delegate_virtual_invoke_impl (MonoMethodSignature *sig, MonoMethod *method)
 {
 	gboolean is_virtual_generic, is_interface, load_imt_reg;
 	int offset, idx;
 
-	static guint8 **cache = NULL;
-	static int cache_size = 0;
 
 	if (!method)
 		return NULL;
@@ -3100,26 +3101,26 @@ mono_get_delegate_virtual_invoke_impl (MonoMethodSignature *sig, MonoMethod *met
 	g_assert (idx >= 0);
 
 	/* Resize the cache to idx + 1 */
-	if (cache_size < idx + 1) {
+	if (delegate_virtual_invoke_cache_size < idx + 1) {
 		mono_jit_lock ();
-		if (cache_size < idx + 1) {
+		if (delegate_virtual_invoke_cache_size < idx + 1) {
 			guint8 **new_cache;
 			int new_cache_size = idx + 1;
 
 			new_cache = g_new0 (guint8*, new_cache_size);
-			if (cache)
-				memcpy (new_cache, cache, cache_size * sizeof (guint8*));
-			g_free (cache);
+			if (delegate_virtual_invoke_cache)
+				memcpy (new_cache, delegate_virtual_invoke_cache, delegate_virtual_invoke_cache_size * sizeof (guint8*));
+			g_free (delegate_virtual_invoke_cache);
 
 			mono_memory_barrier ();
-			cache = new_cache;
-			cache_size = new_cache_size;
+			delegate_virtual_invoke_cache = new_cache;
+			delegate_virtual_invoke_cache_size = new_cache_size;
 		}
 		mono_jit_unlock ();
 	}
 
-	if (cache [idx])
-		return cache [idx];
+	if (delegate_virtual_invoke_cache [idx])
+		return delegate_virtual_invoke_cache [idx];
 
 	/* FIXME Support more cases */
 	if (mono_aot_only) {
@@ -3128,12 +3129,12 @@ mono_get_delegate_virtual_invoke_impl (MonoMethodSignature *sig, MonoMethod *met
 		int ind = (load_imt_reg ? (-offset) : offset) / SIZEOF_VOID_P;
 
 		sprintf (tramp_name, "delegate_virtual_invoke%s_%d", imt, ind);
-		cache [idx] = (guint8 *)mono_aot_get_trampoline (tramp_name);
-		g_assert (cache [idx]);
+		delegate_virtual_invoke_cache [idx] = (guint8 *)mono_aot_get_trampoline (tramp_name);
+		g_assert (delegate_virtual_invoke_cache [idx]);
 	} else {
-		cache [idx] = (guint8 *)mono_arch_get_delegate_virtual_invoke_impl (sig, method, offset, load_imt_reg);
+		delegate_virtual_invoke_cache [idx] = (guint8 *)mono_arch_get_delegate_virtual_invoke_impl (sig, method, offset, load_imt_reg);
 	}
-	return cache [idx];
+	return delegate_virtual_invoke_cache [idx];
 }
 
 /**
@@ -4070,6 +4071,11 @@ mini_cleanup (MonoDomain *domain)
 #endif
 	mono_clean_direct_icall ();
 	mono_gc_final_cleanup ();
+
+	g_free (delegate_virtual_invoke_cache);
+	delegate_virtual_invoke_cache_size = 0;
+	delegate_virtual_invoke_cache_size = NULL;
+
 }
 
 void
