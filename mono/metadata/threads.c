@@ -3832,11 +3832,10 @@ mono_thread_final_cleanup(void)
 {
 	int i;
 	for (i = 0; i < NUM_STATIC_DATA_IDX; ++i) {
-		if (thread_reference_bitmaps[i])
-		{
-			g_free(thread_reference_bitmaps[i]);
-			thread_reference_bitmaps[i] = 0;
-		}
+		g_free (thread_reference_bitmaps [i]);
+		thread_reference_bitmaps [i] = 0;
+		g_free (context_reference_bitmaps [i]);
+		context_reference_bitmaps [i] = 0;
 	}
 	mono_thread_info_detach ();
 
