@@ -3827,7 +3827,16 @@ static const int static_data_size[NUM_STATIC_DATA_IDX] = {
 static MonoBitSet *thread_reference_bitmaps [NUM_STATIC_DATA_IDX];
 static MonoBitSet *context_reference_bitmaps [NUM_STATIC_DATA_IDX];
 
-void 
+void cleanup_freelist (StaticDataFreeList* freelist)
+{
+	while (freelist) {
+		thread_static_info.freelist = freelist->next;
+		g_free (freelist);
+		freelist = thread_static_info.freelist;
+	}
+}
+
+void
 mono_thread_final_cleanup(void)
 {
 	int i;
@@ -3857,6 +3866,9 @@ mono_thread_final_cleanup(void)
 #ifndef HOST_WIN32
 	g_hash_table_destroy (joinable_threads);
 #endif
+
+	cleanup_freelist (thread_static_info.freelist);
+	cleanup_freelist (context_static_info.freelist);
 }
 
 static void
