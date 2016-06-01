@@ -194,7 +194,7 @@ desc_cleanup (void)
 		}
 		next = desc_avail;
 		desc_avail = desc_avail->next;
-		mono_vfree (next, page_size);
+		mono_vfree (page_base, page_size);
 	}
 }
 
