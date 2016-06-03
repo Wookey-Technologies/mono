@@ -5168,7 +5168,7 @@ get_debug_sym (MonoMethod *method, const char *prefix, GHashTable *cache)
 #endif
 
 	len = strlen (name1);
-	name2 = (char *)malloc (strlen (prefix) + len + 16);
+	name2 = (char *)g_malloc (strlen (prefix) + len + 16);
 	memcpy (name2, prefix, strlen (prefix));
 	j = strlen (prefix);
 	for (i = 0; i < len; ++i) {
@@ -8335,7 +8335,7 @@ mono_aot_method_hash (MonoMethod *method)
 		break;
 	}
 	
-	free (hashes_start);
+	g_free (hashes_start);
 	
 	return c;
 }

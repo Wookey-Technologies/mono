@@ -98,10 +98,12 @@ mono_mb_free (MonoMethodBuilder *mb)
 #ifndef DISABLE_JIT
 	GList *l;
 
-	for (l = mb->locals_list; l; l = l->next) {
-		/* Allocated in mono_mb_add_local () */
-		g_free (l->data);
-	}
+    if (mb->method->klass->image == NULL) {
+        for (l = mb->locals_list; l; l = l->next) {
+            /* Allocated in mono_mb_add_local () */
+            g_free (l->data);
+        }
+    }
 	g_list_free (mb->locals_list);
 	if (!mb->dynamic) {
 		g_free (mb->method);
