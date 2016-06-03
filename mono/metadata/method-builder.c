@@ -103,8 +103,9 @@ mono_mb_free (MonoMethodBuilder *mb)
             /* Allocated in mono_mb_add_local () */
             g_free (l->data);
         }
-    }
+	}
 	g_list_free (mb->locals_list);
+	g_list_free (mb->method_data_list);
 	if (!mb->dynamic) {
 		g_free (mb->method);
 		if (!mb->no_dup_name)
@@ -211,11 +212,11 @@ mono_mb_create_method (MonoMethodBuilder *mb, MonoMethodSignature *signature, in
 	method->skip_visibility = mb->skip_visibility;
 #endif
 
-	i = g_list_length ((GList *)mw->method_data);
+	i = g_list_length (mb->method_data_list);
 	if (i) {
 		GList *tmp;
 		void **data;
-		l = g_list_reverse ((GList *)mw->method_data);
+		l = g_list_reverse (mb->method_data_list);
 		if (method_is_dynamic (method))
 			data = (void **)g_malloc (sizeof (gpointer) * (i + 1));
 		else
@@ -227,6 +228,7 @@ mono_mb_create_method (MonoMethodBuilder *mb, MonoMethodSignature *signature, in
 			data [i++] = tmp->data;
 		}
 		g_list_free (l);
+		mb->method_data_list = NULL;
 
 		mw->method_data = data;
 	}
@@ -264,16 +266,9 @@ mono_mb_create_method (MonoMethodBuilder *mb, MonoMethodSignature *signature, in
 guint32
 mono_mb_add_data (MonoMethodBuilder *mb, gpointer data)
 {
-	MonoMethodWrapper *mw;
-
 	g_assert (mb != NULL);
-
-	mw = (MonoMethodWrapper *)mb->method;
-
-	/* one O(n) is enough */
-	mw->method_data = g_list_prepend ((GList *)mw->method_data, data);
-
-	return g_list_length ((GList *)mw->method_data);
+	mb->method_data_list = g_list_prepend (mb->method_data_list, data);
+	return g_list_length (mb->method_data_list);
 }
 
 #ifndef DISABLE_JIT
