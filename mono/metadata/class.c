@@ -1191,6 +1191,9 @@ mono_class_inflate_generic_method_full_checked (MonoMethod *method, MonoClass *k
 		iresult->owner = set;
 		cached = iresult;
 	}
+	else {
+		g_free (iresult);
+	}
 	mono_image_set_unlock (set);
 
 	return (MonoMethod*)cached;

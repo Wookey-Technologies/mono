@@ -2646,10 +2646,10 @@ mono_method_signature_checked (MonoMethod *m, MonoError *error)
 		mono_image_lock (img);
 
 		mono_memory_barrier ();
-        if (!m->signature)
-            m->signature = signature;
-        else if (imethod->declaring->klass->image == NULL)
-            g_free(signature);
+		if (!m->signature)
+			m->signature = signature;
+		else
+			mono_metadata_free_inflated_signature(signature);
 
 		mono_image_unlock (img);
 
@@ -2698,7 +2698,8 @@ mono_method_signature_checked (MonoMethod *m, MonoError *error)
             if (!sig2)
                 g_hash_table_insert(img->method_signatures, (gpointer)sig, signature);
             else {
-                if (img == NULL) g_free(signature);
+				if (img == NULL) 
+					mono_metadata_free_inflated_signature(signature);
                 signature = sig2;
             }
 

@@ -1993,6 +1993,11 @@ mono_jit_compile_method_with_opt (MonoMethod *method, guint32 opt, MonoException
 			callinfo->wrapper = p;
 			mono_register_jit_icall_wrapper (callinfo, p);
 		}
+		else {
+			g_free (p);
+			p = callinfo->wrapper;
+		}
+
 		mono_jit_unlock ();
 		mono_loader_unlock ();
 	}
