@@ -29,6 +29,7 @@
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <!--/D USE_MUNMAP /D USE_MMAP-->
       <AdditionalOptions>/D NVALGRIND /FS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="$(Configuration)=='Debug' or $(Configuration)=='Release'">/D g_malloc=monoeg_malloc /D g_free=monoeg_g_free %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link Condition="$(ConfigurationType) == 'DynamicLibrary'">
       <ImportLibrary>$(OutputBaseDir)$(Platform)\$(Configuration)\lib\$(TargetName).lib</ImportLibrary>
