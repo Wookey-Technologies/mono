@@ -7223,7 +7223,7 @@ ves_icall_System_Text_EncodingHelper_InternalCodePage (gint32 *int_code_page)
 	*int_code_page = -1;
 
 	g_get_charset (&cset);
-	c = codepage = strdup (cset);
+	c = codepage = g_strdup (cset);
 	for (c = codepage; *c; c++){
 		if (isascii (*c) && isalpha (*c))
 			*c = tolower (*c);
@@ -7250,7 +7250,7 @@ ves_icall_System_Text_EncodingHelper_InternalCodePage (gint32 *int_code_page)
 	
 	if (strstr (codepage, "utf_8") != NULL)
 		*int_code_page |= 0x10000000;
-	free (codepage);
+	g_free (codepage);
 	
 	if (want_name && *int_code_page == -1)
 		return mono_string_new (mono_domain_get (), cset);
@@ -8531,6 +8531,14 @@ mono_icall_unlock (void)
 void
 mono_icall_cleanup (void)
 {
+	GHashTableIter iter;
+	gpointer key;
+
+	g_hash_table_iter_init (&iter, jit_icall_hash_name);
+	while (g_hash_table_iter_next (&iter, &key, NULL)) {
+		g_free (key);
+	}
+
 	g_hash_table_destroy (icall_hash);
 	g_hash_table_destroy (jit_icall_hash_name);
 	g_hash_table_destroy (jit_icall_hash_addr);
@@ -9065,7 +9073,7 @@ mono_register_jit_icall_full (gconstpointer func, const char *name, MonoMethodSi
 
 	info = g_new0 (MonoJitICallInfo, 1);
 	
-	info->name = name;
+	info->name = g_strdup(name);
 	info->func = func;
 	info->sig = sig;
 	info->c_symbol = c_symbol;

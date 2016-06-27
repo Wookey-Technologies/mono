@@ -402,7 +402,7 @@ free_chunklist (CodeChunk *chunk)
 			dlfree (dead->data);
 		}
 		code_memory_used -= dead->size;
-		free (dead);
+		g_free (dead);
 	}
 }
 
@@ -417,7 +417,7 @@ mono_code_manager_destroy (MonoCodeManager *cman)
 {
 	free_chunklist (cman->full);
 	free_chunklist (cman->current);
-	free (cman);
+	g_free (cman);
 }
 
 /**
@@ -566,7 +566,7 @@ new_codechunk (CodeChunk *last, int dynamic, int size)
 #endif
 	}
 
-	chunk = (CodeChunk *) malloc (sizeof (CodeChunk));
+	chunk = (CodeChunk *) g_malloc (sizeof (CodeChunk));
 	if (!chunk) {
 		if (flags == CODE_FLAG_MALLOC)
 			dlfree (ptr);
@@ -753,7 +753,7 @@ mono_code_manager_commit (MonoCodeManager *cman, void *data, int size, int newsi
 	patch_current_depth--;
 	g_assert (patch_current_depth >= -1);
 # endif
-	free (data);
+	g_free (data);
 #endif
 }
 
