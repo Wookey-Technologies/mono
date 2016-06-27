@@ -2965,6 +2965,7 @@ void
 mono_gc_base_cleanup (void)
 {
 	sgen_thread_pool_shutdown (); 
+	sgen_pin_cleanup ();
 }
 
 gboolean
