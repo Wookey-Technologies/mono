@@ -159,10 +159,10 @@ free_sb (gpointer sb, size_t block_size)
 #ifndef DESC_AVAIL_DUMMY
 static Descriptor * volatile desc_avail;
 
-void
+static void
 desc_cleanup (void)
 {
-	Descriptor** next;
+	Descriptor * volatile * next;
 	int page_size = mono_pagesize ();
 	size_t page_base;
 	size_t page_mask = (~(page_size - 1));
@@ -177,7 +177,7 @@ desc_cleanup (void)
 		}
 		next = desc_avail;
 		desc_avail = desc_avail->next;
-		mono_vfree (page_base, page_size);
+		mono_vfree ((void*)page_base, page_size);
 	}
 }
 

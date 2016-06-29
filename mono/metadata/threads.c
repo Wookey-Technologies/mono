@@ -38,6 +38,7 @@
 #include <mono/utils/mono-time.h>
 #include <mono/utils/mono-threads.h>
 #include <mono/utils/hazard-pointer.h>
+#include <mono/utils/lock-free-alloc.h>
 #include <mono/utils/mono-tls.h>
 #include <mono/utils/atomic.h>
 #include <mono/utils/mono-memory-model.h>
@@ -3914,7 +3915,8 @@ static const int static_data_size [NUM_STATIC_DATA_IDX] = {
 static MonoBitSet *thread_reference_bitmaps [NUM_STATIC_DATA_IDX];
 static MonoBitSet *context_reference_bitmaps [NUM_STATIC_DATA_IDX];
 
-void cleanup_freelist (StaticDataFreeList* freelist)
+static void
+cleanup_freelist (StaticDataFreeList* freelist)
 {
 	while (freelist) {
 		thread_static_info.freelist = freelist->next;
@@ -3935,19 +3937,15 @@ mono_thread_final_cleanup (void)
 	}
 	mono_thread_info_detach ();
 
-	mono_g_hash_table_destroy (contexts);
+	g_hash_table_destroy (contexts);
 	mono_g_hash_table_destroy (threads_starting_up);
 	mono_g_hash_table_destroy (threads);
 	threads = NULL;
 	threads_starting_up = NULL;
 	contexts = NULL;
 
-#ifdef HAVE_SGEN_GC
-	sgen_alloc_nursery_cleanup ();
-	sgen_complex_descriptor_cleanup ();
-	sgen_marksweep_cleanup ();
-	//sgen_thread_pool_cleanup ();
-#endif
+	mono_gc_final_cleanup ();
+	mono_lock_free_cleanup ();
 	mono_thread_smr_cleanup ();
 
 #ifndef HOST_WIN32

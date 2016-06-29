@@ -503,7 +503,7 @@ void
 sgen_gchandle_cleanup ()
 {
 	for (GCHandleType type = 0; type < HANDLE_TYPE_MAX; ++type) {
-		sgen_array_list_free (gc_handles_for_type (type));
+		sgen_array_list_free (&gc_handles_for_type (type)->entries_array);
 	}
 }
 

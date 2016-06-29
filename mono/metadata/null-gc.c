@@ -547,4 +547,8 @@ mono_gc_is_null (void)
 	return TRUE;
 }
 
+void
+mono_gc_final_cleanup (void)
+{
+}
 #endif

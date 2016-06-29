@@ -4245,11 +4245,10 @@ mini_cleanup (MonoDomain *domain)
 #endif
 
 	mono_direct_icall_cleanup ();
-	mono_gc_final_cleanup ();
 
 	g_free (delegate_virtual_invoke_cache);
 	delegate_virtual_invoke_cache_size = 0;
-	delegate_virtual_invoke_cache_size = NULL;
+	delegate_virtual_invoke_cache = NULL;
 }
 
 void

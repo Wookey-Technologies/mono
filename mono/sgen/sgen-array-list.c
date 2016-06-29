@@ -193,9 +193,9 @@ void sgen_array_list_free (SgenArrayList* array)
 	const guint32 max_bucket = sgen_array_list_index_bucket ((array)->capacity); 
 	for (bucket = 0; bucket < max_bucket; ++bucket) {
 		if (array->mem_type != -1)
-			sgen_free_internal_dynamic (array->entries[bucket], sgen_array_list_bucket_size (bucket), array->mem_type);
+			sgen_free_internal_dynamic ((void*)(array->entries[bucket]), sgen_array_list_bucket_size (bucket), array->mem_type);
 		else
-			g_free (array->entries[bucket]);
+			g_free ((void*)(array->entries[bucket]));
 		array->entries[bucket] = NULL;
 	}
 	array->capacity = 0;

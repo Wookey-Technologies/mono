@@ -177,6 +177,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
+#include "mono/metadata/gc-internals.h"
 #include "mono/sgen/sgen-gc.h"
 #include "mono/sgen/sgen-cardtable.h"
 #include "mono/sgen/sgen-protocol.h"
@@ -3294,6 +3295,11 @@ mono_gc_final_cleanup (void)
 	sgen_pointer_queue_free (&critical_fin_queue);
 
 	sgen_gchandle_cleanup ();
+
+
+	sgen_nursery_alloc_cleanup ();
+	sgen_complex_descriptor_cleanup ();
+	sgen_marksweep_cleanup ();
 }
 
 #endif /* HAVE_SGEN_GC */

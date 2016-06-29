@@ -1905,4 +1905,8 @@ mono_gchandle_free_domain (MonoDomain *domain)
 
 }
 
+void
+mono_gc_final_cleanup (void)
+{
+}
 #endif /* no Boehm GC */

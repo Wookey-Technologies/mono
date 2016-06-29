@@ -884,6 +884,7 @@ typedef struct {
 extern MonoPerfCounters *mono_perfcounters;
 
 MONO_API void mono_perfcounters_init (void);
+void mono_perfcounters_cleanup (void);
 
 /*
  * The definition of the first field in SafeHandle,

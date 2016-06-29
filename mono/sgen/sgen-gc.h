@@ -933,7 +933,7 @@ int sgen_gc_invoke_finalizers (void);
 /* GC handles */
 
 void sgen_init_gchandles (void);
-void sgen_gchandle_cleanup ();
+void sgen_gchandle_cleanup (void);
 void sgen_null_links_if (SgenObjectPredicateFunc predicate, void *data, int generation, gboolean track);
 
 typedef gpointer (*SgenGCHandleIterateCallback) (gpointer hidden, GCHandleType handle_type, int max_generation, gpointer user);

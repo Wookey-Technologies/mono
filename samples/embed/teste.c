@@ -1,6 +1,7 @@
 #include <mono/jit/jit.h>
 #include <mono/metadata/environment.h>
 #include <mono/utils/mono-publib.h>
+#include <mono/metadata/mono-config.h>
 #include <stdlib.h>
 
 /*
@@ -32,12 +33,41 @@ static void main_function (MonoDomain *domain, const char *file, int argc, char*
 	mono_jit_exec (domain, assembly, argc, argv);
 }
 
+static int memory_calls = 0;
 static int malloc_count = 0;
 
 static void* custom_malloc(size_t bytes)
 {
+	++memory_calls;
 	++malloc_count;
 	return malloc(bytes);
+}
+
+static
+void* custom_realloc (void* mem, size_t bytes)
+{
+	++memory_calls;
+	if (mem && !bytes)
+		--malloc_count;
+	else if (!mem && bytes)
+		++malloc_count;
+	return realloc (mem, bytes);
+}
+
+static
+void* custom_calloc (size_t count, size_t bytes)
+{
+	++memory_calls;
+	++malloc_count;
+	return calloc (count, bytes);
+}
+
+static
+void custom_free (void* mem)
+{
+	++memory_calls;
+	--malloc_count;
+	free (mem);
 }
 
 int 
@@ -52,7 +82,7 @@ main(int argc, char* argv[]) {
 	}
 	file = argv [1];
 
-	MonoAllocatorVTable mem_vtable = {custom_malloc};
+	MonoAllocatorVTable mem_vtable = {custom_malloc, custom_realloc, custom_free, custom_calloc};
 	mono_set_allocator_vtable (&mem_vtable);
 
 	/*
@@ -77,8 +107,7 @@ main(int argc, char* argv[]) {
 	retval = mono_environment_exitcode_get ();
 	
 	mono_jit_cleanup (domain);
-
-	fprintf (stdout, "custom malloc calls = %d\n", malloc_count);
+	fprintf (stdout, "custom malloc calls = %d(%d)\n", malloc_count, memory_calls);
 
 	return retval;
 }

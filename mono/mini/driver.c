@@ -2307,6 +2307,8 @@ mono_jit_cleanup (MonoDomain *domain)
 	mono_thread_manage ();
 
 	mini_cleanup (domain);
+
+	mono_thread_final_cleanup ();
 }
 
 void

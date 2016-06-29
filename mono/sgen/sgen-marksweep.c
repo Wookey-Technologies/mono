@@ -1952,11 +1952,13 @@ compare_pointers (const void *va, const void *vb) {
 #endif
 
 static void
-free_free_block_lists (MSBlockInfo ***lists)
+free_free_block_lists (MSBlockInfo * volatile**lists)
 {
 	int i;
-	for (i = 0; i < MS_BLOCK_TYPE_MAX; ++i)
-		sgen_free_internal_dynamic (lists[i], sizeof (MSBlockInfo*) * num_block_obj_sizes, INTERNAL_MEM_MS_TABLES);
+	for (i = 0; i < MS_BLOCK_TYPE_MAX; ++i) {
+		sgen_free_internal_dynamic ((void*)(lists[i]), sizeof (MSBlockInfo*) * num_block_obj_sizes, INTERNAL_MEM_MS_TABLES);
+		lists[i] = NULL;
+	}
 }
 
 /*
@@ -2674,8 +2676,7 @@ sgen_marksweep_conc_init (SgenMajorCollector *collector)
 void
 sgen_marksweep_cleanup ()
 {
-	sgen_pointer_queue_free (&allocated_blocks);
-	memset (&allocated_blocks, 0, sizeof (allocated_blocks));
+	sgen_array_list_free (&allocated_blocks);
 	sgen_pin_cleanup ();
 	sgen_free_internal_dynamic (nursery_section->scan_starts, nursery_section->num_scan_start * sizeof (char*), INTERNAL_MEM_SCAN_STARTS);
 	free_free_block_lists (free_block_lists);
@@ -2700,6 +2701,5 @@ sgen_marksweep_cleanup ()
 	sgen_fin_weak_hash_cleanup ();
 
 	sgen_free_internal_dynamic (block_obj_sizes, sizeof (int) * num_block_obj_sizes, INTERNAL_MEM_MS_TABLES);
-	mono_lock_free_cleanup ();
 }
 #endif

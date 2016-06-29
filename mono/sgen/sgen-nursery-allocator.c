@@ -914,7 +914,7 @@ sgen_nursery_allocator_set_nursery_bounds (char *start, char *end)
 }
 
 void
-sgen_alloc_nursery_cleanup (void)
+sgen_nursery_alloc_cleanup (void)
 {
 	SgenFragment* fragment = fragment_freelist;
 	SgenFragment* next;
