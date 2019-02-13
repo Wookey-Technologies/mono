@@ -745,3 +745,19 @@ mono_pages_not_faulted (void *addr, size_t size)
 	return -1;
 #endif
 }
+
+void
+mono_set_alloc_methods (MonoAllocMethods *alloc_methods)
+{
+	static int warn = 1;
+	if (warn) {
+		g_print ("\n\mono_set_alloc_methods not implemented\n\n");
+		warn = 0;
+	}
+}
+
+MonoAllocMethods
+mono_get_alloc_methods (void)
+{
+	return (MonoAllocMethods){0};
+}

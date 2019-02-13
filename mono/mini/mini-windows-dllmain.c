@@ -32,7 +32,8 @@ BOOL APIENTRY DllMain (HMODULE module_handle, DWORD reason, LPVOID reserved)
 			FreeLibrary (coree_module_handle);
 		break;
 	case DLL_THREAD_DETACH:
-		mono_thread_info_detach ();
+		if (mono_get_root_domain() != NULL)
+			mono_thread_info_detach ();
 		break;
 	
 	}

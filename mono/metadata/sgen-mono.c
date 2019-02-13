@@ -1984,6 +1984,17 @@ mono_gc_walk_heap (int flags, MonoGCReferences callback, void *data)
 	return 0;
 }
 
+int
+mono_gc_step_heap (int flags, MonoGCReferences callback, int start_block, int max_blocks, int section_flags, void *data)
+{
+	static int warn = 1;
+	if (warn) {
+		g_print ("\n\nmono_gc_step_heap stepping not implemented\n\n");
+		warn = 0;
+	}
+	return mono_gc_walk_heap (flags, callback, data);
+}
+
 /*
  * Threads
  */
@@ -2418,6 +2429,12 @@ gboolean
 mono_gc_precise_stack_mark_enabled (void)
 {
 	return !conservative_stack_mark;
+}
+
+void
+mono_gc_run_on_stopped_world (void (*func) (void *), void *user_data)
+{
+	sgen_run_on_stopped_world (func, user_data);
 }
 
 void

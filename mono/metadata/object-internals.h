@@ -700,7 +700,7 @@ typedef struct {
 #endif
 } MonoRuntimeExceptionHandlingCallbacks;
 
-MONO_COLD void mono_set_pending_exception (MonoException *exc);
+MONO_COLD MONO_API void mono_set_pending_exception (MonoException *exc);
 
 /* remoting and async support */
 

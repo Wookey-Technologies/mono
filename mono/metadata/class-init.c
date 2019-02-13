@@ -616,7 +616,7 @@ mono_class_create_from_typedef (MonoImage *image, guint32 type_token, MonoError 
 
 	/* reserve space to store vector pointer in arrays */
 	if (mono_is_corlib_image (image) && !strcmp (nspace, "System") && !strcmp (name, "Array")) {
-		klass->instance_size += 2 * sizeof (gpointer);
+		klass->instance_size += sizeof (MonoObject);
 		g_assert (mono_class_get_field_count (klass) == 0);
 	}
 
