@@ -119,6 +119,21 @@ MONO_API int    mono_gc_invoke_finalizers (void);
 /* heap walking is only valid in the pre-stop-world event callback */
 MONO_API int    mono_gc_walk_heap        (int flags, MonoGCReferences callback, void *data);
 
+
+/* heap walking is only valid in the pre-stop-world event callback */
+MONO_API int mono_gc_step_heap (int flags, MonoGCReferences callback, int starting_block, int max_blocks, int section_flags, void *data);
+
+// mono_gc_run_on_stopped_world will grab the GC lock, stop the world, run func(user_data), start the world, release GC lock.
+MONO_API void mono_gc_run_on_stopped_world (void (*func) (void *), void *user_data);
+
+#define MONO_HEAP_WALK_SECTION_NURSERY  1
+#define MONO_HEAP_WALK_SECTION_MAJOR    2
+#define MONO_HEAP_WALK_SECTION_LOS      4
+#define MONO_HEAP_WALK_SECTION_ALL     -1
+
+#define MONO_HEAP_WALK_FLAGS_NO_REFS    1
+
+
 MONO_END_DECLS
 
 #endif /* __METADATA_MONO_GC_H__ */

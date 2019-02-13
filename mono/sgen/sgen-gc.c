@@ -3078,6 +3078,17 @@ sgen_wbarrier_range_copy (gpointer _dest, gpointer _src, int size)
  * ######################################################################
  */
 
+
+void
+sgen_run_on_stopped_world (void (*func) (void *), void *user_data)
+{
+	LOCK_GC;
+	sgen_stop_world (-2, FALSE);
+	func (user_data);
+	sgen_restart_world (-2, FALSE);
+	UNLOCK_GC;
+}
+
 void
 sgen_gc_collect (int generation)
 {

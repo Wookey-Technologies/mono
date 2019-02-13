@@ -59,6 +59,20 @@ MONO_API void* mono_valloc     (void *addr, size_t length, int flags, MonoMemAcc
 MONO_API void* mono_valloc_aligned (size_t length, size_t alignment, int flags, MonoMemAccountType type);
 MONO_API int   mono_vfree      (void *addr, size_t length, MonoMemAccountType type);
 MONO_API void* mono_file_map   (size_t length, int flags, int fd, guint64 offset, void **ret_handle);
+
+typedef struct _MonoAllocMethods
+{
+	int   (*mono_pagesize)   (void);
+	int   (*mono_valloc_granule) (void);
+	void* (*mono_valloc)     (void *addr, size_t length, int flags, MonoMemAccountType type);
+	void* (*mono_valloc_aligned) (size_t length, size_t alignment, int flags, MonoMemAccountType type);
+	int   (*mono_vfree)      (void *addr, size_t length, MonoMemAccountType type);
+	int   (*mono_mprotect)   (size_t length, int flags, int fd, guint64 offset, void **ret_handle);
+} MonoAllocMethods;
+
+MONO_API void  mono_set_alloc_methods (MonoAllocMethods*);
+MONO_API MonoAllocMethods mono_get_alloc_methods (void);
+
 // Last two parameters are optional.
 // This is mono_file_map but with optionally returning an error message.
 // See https://github.com/mono/mono/issues/8225.
