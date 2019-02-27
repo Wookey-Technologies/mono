@@ -650,6 +650,7 @@ struct _SgenMajorCollector {
 	 * debugging.  Can assume the world is stopped.
 	 */
 	void (*iterate_objects) (IterateObjectsFlags flags, IterateObjectCallbackFunc callback, void *data);
+	int (*iterate_some_objects) (IterateObjectsFlags flags, IterateObjectCallbackFunc callback, void *data, int start_block, int max_blocks);
 
 	void (*free_non_pinned_object) (GCObject *obj, size_t size);
 	void (*pin_objects) (SgenGrayQueue *queue);
