@@ -1393,24 +1393,24 @@ void GC_register_data_segments()
   void GC_add_current_malloc_heap()
   {
     struct GC_malloc_heap_list *new_l =
-                 malloc(sizeof(struct GC_malloc_heap_list));
+                 g_malloc (sizeof(structGC_malloc_heap_list));
     void * candidate = GC_get_allocation_base(new_l);
 
     if (new_l == 0) return;
     if (GC_is_malloc_heap_base(candidate)) {
       /* Try a little harder to find malloc heap.			*/
-	size_t req_size = 10000;
-	do {
-	  void *p = malloc(req_size);
-	  if (0 == p) { free(new_l); return; }
- 	  candidate = GC_get_allocation_base(p);
-	  free(p);
-	  req_size *= 2;
-	} while (GC_is_malloc_heap_base(candidate)
-	         && req_size < GC_max_root_size/10 && req_size < 500000);
-	if (GC_is_malloc_heap_base(candidate)) {
-	  free(new_l); return;
-	}
+      size_t req_size = 10000;
+      do {
+        void *p = g_malloc(req_size);
+        if (0 == p) { g_free(new_l); return; }
+        candidate = GC_get_allocation_base(p);
+        g_free(p);
+        req_size *= 2;
+      } while (GC_is_malloc_heap_base(candidate)
+               && req_size < GC_max_root_size/10 && req_size < 500000);
+      if (GC_is_malloc_heap_base(candidate)) {
+        g_free(new_l); return;
+      }
     }
 #   ifdef CONDPRINT
       if (GC_print_stats)
