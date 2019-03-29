@@ -3,7 +3,7 @@
 
 set -e
 
-base=$PWD
+base=$(dirname "$PWD")
 
 #remove old profiles
 profiles=("2.0-api" "3.5-api" "4.0" "4.0-api"  "4.5.1-api"  "4.5.2-api"  "4.6.1-api"  "4.6.2-api"  "4.6-api"  "4.7.1-api"  "4.7-api")

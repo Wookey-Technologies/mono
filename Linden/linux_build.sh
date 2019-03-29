@@ -3,7 +3,7 @@
 
 set -e
 
-base=$PWD
+base=$(dirname "$PWD")
 configure_options='--with-mcs-docs=no --with-overridable-allocators --with-large-heap=yes'
 rm -rf $base/Output/Linux $base/Output/include
 cd ..

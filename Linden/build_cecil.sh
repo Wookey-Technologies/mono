@@ -1,7 +1,8 @@
 #!/bin/bash
 
 set -x
-MONO_PATH=`cd $PWD/Output/Linux/Release/lib; pwd`
+base=$(dirname "$PWD")
+MONO_PATH=`cd $base/Output/Linux/Release/lib; $base`
 PATH=$MONO_PATH/../bin:$PATH
 common_args=/p:Configuration=net_4_0_Release\;NoCompilerStandardLib=false\;OutDir=$MONO_PATH/mono/4.5/
 
