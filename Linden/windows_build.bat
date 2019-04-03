@@ -1,4 +1,5 @@
 setlocal
 call "%VS140COMNTOOLS%vsvars32.bat"
-msbuild build.target
+echo "building %~dp0\build.target"
+msbuild %~dp0\build.target
 
