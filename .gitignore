@@ -132,3 +132,5 @@ tmpinst-dir.stamp
 msvc/scripts/inputs/
 extensions-config.h
 *.mlpd
+
+!Stripped/**
