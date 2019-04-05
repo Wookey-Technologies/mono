@@ -196,5 +196,5 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 
-  <Import Project="Sansar.props"/>
+  <Import Project="$(MonoSourceLocation)\Linden\Sansar.props"/>
 </Project>
