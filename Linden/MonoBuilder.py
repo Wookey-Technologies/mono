@@ -24,18 +24,24 @@ class MonoBuilder(LindenBuilder):
                 if os.path.exists(os.path.abspath(file)):
                     os.remove(os.path.abspath(file))
 
+            os.chdir("Linden")
             subprocess.check_call("msbuild.exe build.target /p:PlatformToolset=v140", shell=True)
         except:
             print( "EXCEPTION: %s\n%s" % (sys.exc_info()[1],traceback.format_exc()) )
             return False
+		finally:
+            os.chdir("../")
         return True
 
     def build_linux(self):
         try:
+            os.chdir("Linden")
             subprocess.check_call("/bin/bash linux_build.sh", shell=True)
         except:
             print( "EXCEPTION: %s\n%s" % (sys.exc_info()[1],traceback.format_exc()) )
             return False
+		finally:
+            os.chdir("../")
         return True
 
 if __name__ == "__main__":
