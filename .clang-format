@@ -1,0 +1,27 @@
+﻿---
+AlwaysBreakAfterDefinitionReturnType: TopLevel
+BinPackArguments: 'true'
+BreakBeforeBraces: Stroustrup
+BreakBeforeTernaryOperators: 'true'
+ColumnLimit: '0'
+Cpp11BracedListStyle: 'true'
+DerivePointerAlignment: 'false'
+ExperimentalAutoDetectBinPacking: 'false'
+IncludeBlocks: Preserve
+IndentCaseLabels: 'false'
+MaxEmptyLinesToKeep: '1'
+PenaltyReturnTypeOnItsOwnLine: '0'
+PointerAlignment: Right
+SortIncludes: 'false'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeParens: Always
+SpaceInEmptyParentheses: 'false'
+SpacesInAngles: 'false'
+SpacesInCStyleCastParentheses: 'false'
+SpacesInContainerLiterals: 'false'
+SpacesInParentheses: 'false'
+SpacesInSquareBrackets: 'false'
+TabWidth: '2'
+UseTab: Always
+
+...
