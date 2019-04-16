@@ -109,6 +109,7 @@ g_file_open_tmp (const gchar *tmpl, gchar **name_used, GError **gerror)
 	gchar *t;
 	gint fd;
 	size_t len;
+	const char *tmp;
 
 	g_return_val_if_fail (gerror == NULL || *gerror == NULL, -1);
 
@@ -130,7 +131,11 @@ g_file_open_tmp (const gchar *tmpl, gchar **name_used, GError **gerror)
 		return -1;
 	}
 
-	t = g_build_filename (g_get_tmp_dir (), tmpl, NULL);
+	tmp = g_get_tmp_dir ();
+	t = g_build_filename (tmp, tmpl, NULL);
+#ifdef TARGET_WIN32
+	g_free (tmp);
+#endif
 
 	fd = mkstemp (t);
 
