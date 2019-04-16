@@ -647,6 +647,7 @@ mono_config_for_assembly_internal (MonoImage *assembly)
 		cfg = g_build_filename (home, ".mono", "assemblies", aname, cfg_name, NULL);
 		got_it += mono_config_parse_file_with_context (&state, cfg);
 		g_free (cfg);
+		g_free (home);
 #endif
 		g_free (aname);
 		if (got_it)
@@ -690,6 +691,7 @@ mono_config_parse (const char *filename) {
 	user_cfg = g_strconcat (home, G_DIR_SEPARATOR_S, ".mono/config", NULL);
 	mono_config_parse_file (user_cfg);
 	g_free (user_cfg);
+	g_free (home);
 #endif
 }
 

@@ -1589,6 +1589,9 @@ aot_cache_load_module (MonoAssembly *assembly, char **aot_name)
 		if (!home)
 			return NULL;
 		cache_dir = g_strdup_printf ("%s/Library/Caches/mono/aot-cache", home);
+#ifdef TARGET_WIN32
+		g_free (home);
+#endif
 		if (!g_file_test (cache_dir, G_FILE_TEST_EXISTS|G_FILE_TEST_IS_DIR))
 			g_mkdir_with_parents (cache_dir, 0777);
 	}
