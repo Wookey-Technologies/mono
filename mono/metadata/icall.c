@@ -7149,7 +7149,12 @@ ves_icall_System_Runtime_Activation_ActivationServices_AllocateUninitializedClas
 ICALL_EXPORT MonoStringHandle
 ves_icall_System_IO_get_temp_path (MonoError *error)
 {
-	return mono_string_new_handle (mono_domain_get (), g_get_tmp_dir (), error);
+	const char *tmp = g_get_tmp_dir ();
+	MonoStringHandle result = mono_string_new_handle (mono_domain_get (), g_get_tmp_dir (), error);
+#ifdef TARGET_WIN32
+	g_free (tmp);
+#endif
+	return result;
 }
 
 #ifndef PLATFORM_NO_DRIVEINFO

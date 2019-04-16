@@ -1740,9 +1740,13 @@ get_shadow_assembly_location_base (MonoDomain *domain, MonoError *error)
 		g_free (appname);
 		g_free (cache_path);
 	} else {
+		const char *tmp = g_get_tmp_dir ();
 		userdir = g_strdup_printf ("%s-mono-cachepath", g_get_user_name ());
-		location = g_build_filename (g_get_tmp_dir (), userdir, "assembly", "shadow", NULL);
+		location = g_build_filename (tmp, userdir, "assembly", "shadow", NULL);
 		g_free (userdir);
+#ifdef TARGET_WIN32
+		g_free (tmp);
+#endif
 	}
 	return location;
 }

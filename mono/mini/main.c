@@ -153,8 +153,12 @@ delete_bundled_libraries (void)
 static void
 bundle_save_library_initialize (void)
 {
+	const char *tmp = g_get_tmp_dir ();
 	bundle_save_library_initialized = 1;
-	char *path = g_build_filename (g_get_tmp_dir (), "mono-bundle-XXXXXX", NULL);
+	char *path = g_build_filename (tmp, "mono-bundle-XXXXXX", NULL);
+#ifdef TARGET_WIN32
+	g_free (tmp);
+#endif
 	bundled_dylibrary_directory = g_mkdtemp (path);
 	g_free (path);
 	if (bundled_dylibrary_directory == NULL)

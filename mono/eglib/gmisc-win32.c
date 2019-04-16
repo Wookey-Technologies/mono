@@ -186,22 +186,17 @@ g_get_user_name (void)
 	return retName;
 }
 
-static const char *tmp_dir;
-
 const gchar *
 g_get_tmp_dir (void)
 {
-	if (tmp_dir == NULL){
-		if (tmp_dir == NULL){
-			tmp_dir = g_getenv ("TMPDIR");
-			if (tmp_dir == NULL){
-				tmp_dir = g_getenv ("TMP");
-				if (tmp_dir == NULL){
-					tmp_dir = g_getenv ("TEMP");
-					if (tmp_dir == NULL)
-						tmp_dir = "C:\\temp";
-				}
-			}
+	const gchar *tmp_dir;
+	tmp_dir = g_getenv ("TMPDIR");
+	if (tmp_dir == NULL) {
+		tmp_dir = g_getenv ("TMP");
+		if (tmp_dir == NULL) {
+			tmp_dir = g_getenv ("TEMP");
+			if (tmp_dir == NULL)
+				tmp_dir = g_strdup ("C:\\temp");
 		}
 	}
 	return tmp_dir;
