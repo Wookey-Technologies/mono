@@ -6896,7 +6896,12 @@ ves_icall_System_IO_DriveInfo_GetDriveFormat (MonoString *path)
 ICALL_EXPORT MonoStringHandle
 ves_icall_System_Environment_InternalGetHome (MonoError *error)
 {
-	return mono_string_new_handle (mono_domain_get (), g_get_home_dir (), error);
+	const char *home = g_get_home_dir ();
+	MonoStringHandle result = mono_string_new_handle (mono_domain_get (), home, error);
+#ifdef TARGET_WIN32
+	g_free (home);
+#endif
+	return result;
 }
 
 static const char *encodings [] = {
