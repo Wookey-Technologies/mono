@@ -1,7 +1,7 @@
 ﻿---
 AlwaysBreakAfterDefinitionReturnType: TopLevel
 BinPackArguments: 'true'
-BreakBeforeBraces: Stroustrup
+BreakBeforeBraces: Linux
 BreakBeforeTernaryOperators: 'true'
 ColumnLimit: '0'
 Cpp11BracedListStyle: 'true'
