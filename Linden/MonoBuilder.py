@@ -26,22 +26,22 @@ class MonoBuilder(LindenBuilder):
 
             os.chdir("Linden")
             subprocess.check_call("msbuild.exe build.target /p:PlatformToolset=v140", shell=True)
-            os.chdir("../")
         except:
             print( "EXCEPTION: %s\n%s" % (sys.exc_info()[1],traceback.format_exc()) )
-            os.chdir("../")
             return False
+		finally:
+            os.chdir("../")
         return True
 
     def build_linux(self):
         try:
             os.chdir("Linden")
             subprocess.check_call("/bin/bash linux_build.sh", shell=True)
-            os.chdir("../")
         except:
             print( "EXCEPTION: %s\n%s" % (sys.exc_info()[1],traceback.format_exc()) )
-            os.chdir("../")
             return False
+		finally:
+            os.chdir("../")
         return True
 
 if __name__ == "__main__":
