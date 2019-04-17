@@ -29,7 +29,7 @@ class MonoBuilder(LindenBuilder):
         except:
             print( "EXCEPTION: %s\n%s" % (sys.exc_info()[1],traceback.format_exc()) )
             return False
-		finally:
+        finally:
             os.chdir("../")
         return True
 
@@ -40,9 +40,10 @@ class MonoBuilder(LindenBuilder):
         except:
             print( "EXCEPTION: %s\n%s" % (sys.exc_info()[1],traceback.format_exc()) )
             return False
-		finally:
+        finally:
             os.chdir("../")
         return True
 
 if __name__ == "__main__":
     sys.exit(main(MonoBuilder))
+
