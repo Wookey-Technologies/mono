@@ -1,10 +1,11 @@
 <manifest>
     <platform type="win64">
+        <delete>Stripped/x64/*</delete>
         <file dest="x64/">Linden/Output/x64/*</file>
     </platform>
     <platform type="linux">
-    	<delete>Stripped/*<delete>
-        <delete>Linden/Output/include/*</delete>
+        <delete>Stripped/Linux/*</delete>
+        <delete>Stripped/include/*</delete>
         <file dest="include/">Linden/Output/include/*</file>
         <file dest="Linux/">Linden/Output/Linux/*</file>
     </platform>
