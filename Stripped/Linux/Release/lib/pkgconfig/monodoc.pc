@@ -1,0 +1,9 @@
+prefix=/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Release
+exec_prefix=${prefix}
+libdir=/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Release/lib
+sourcesdir=${libdir}/monodoc/sources
+
+Name: Monodoc
+Description: Monodoc - Mono Documentation Tools
+Version: 5.18.0
+Libs: /r:${prefix}/lib/mono/monodoc/monodoc.dll 

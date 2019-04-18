@@ -1,0 +1,2 @@
+#!/bin/sh
+exec $(dirname $0)/mono $MONO_OPTIONS $(dirname $0)/../lib/mono/mono-configuration-crypto/4.5/mono-configuration-crypto.exe "$@"

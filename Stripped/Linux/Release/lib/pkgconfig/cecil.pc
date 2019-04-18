@@ -1,0 +1,7 @@
+assemblies_dir=/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Release/lib/mono
+Libraries=${assemblies_dir}/gac/Mono.Cecil/0.9.5.0__0738eb9f132ed756/Mono.Cecil.dll
+
+Name: Mono Internal -- Do not use.
+Description: Mono Internal Libraries -- Do not use 
+Version: 5.18.0
+Libs: -r:Mono.Cecil.dll
