@@ -2696,7 +2696,7 @@ mono_marshal_get_runtime_invoke_full (MonoMethod *method, gboolean virtual_, gbo
 
 	get_marshal_cb ()->emit_runtime_invoke_body (mb, param_names, m_class_get_image (target_klass), method, sig, callsig, virtual_, need_direct_wrapper);
 
-	method_key = g_new (MonoWrapperMethodCacheKey, 1);
+	method_key = mono_domain_alloc0 ( mono_domain_get (), sizeof (MonoWrapperMethodCacheKey));
 	memcpy (method_key, &method_key_lookup_only, sizeof (MonoWrapperMethodCacheKey));
 
 	if (need_direct_wrapper || virtual_) {
@@ -2705,7 +2705,7 @@ mono_marshal_get_runtime_invoke_full (MonoMethod *method, gboolean virtual_, gbo
 		info->d.runtime_invoke.method = method;
 		res = mono_mb_create_and_cache_full (method_cache, method_key, mb, csig, sig->param_count + 16, info, NULL);
 	} else {
-		MonoWrapperSignatureCacheKey *sig_key = g_new0 (MonoWrapperSignatureCacheKey, 1);
+		MonoWrapperSignatureCacheKey *sig_key = mono_domain_alloc0 (mono_domain_get (), sizeof (MonoWrapperSignatureCacheKey));
 		sig_key->signature = callsig;
 		sig_key->valuetype = m_class_is_valuetype (method->klass);
 
@@ -2730,13 +2730,8 @@ mono_marshal_get_runtime_invoke_full (MonoMethod *method, gboolean virtual_, gbo
 				g_hash_table_insert (method_cache, method_key, res);
 			} else {
 				mono_free_method (newm);
-				g_free (sig_key);
-				g_free (method_key);
 			}
 			mono_marshal_unlock ();
-		} else {
-			g_free (sig_key);
-			g_free (method_key);
 		}
 
 		/* end mono_mb_create_and_cache */
