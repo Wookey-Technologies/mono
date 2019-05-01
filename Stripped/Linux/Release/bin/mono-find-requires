@@ -21,7 +21,7 @@ monolist=($(printf "%s\n" "${filelist[@]}" | egrep "\\.(exe|dll)\$"))
 configlist=($(printf "%s\n" "${filelist[@]}" | egrep "\\.config\$"))
 
 # Set the prefix, unless it is overriden (used when building mono rpms)
-: ${prefix=/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Release}
+: ${prefix=/local/work/7e07deaecad6bbbb/ThirdParty/Linden/Mono/Linden/Output/Linux/Release}
 
 # Can override .config scanning if specified
 : ${IGNORE_CONFIG_SCAN=0}

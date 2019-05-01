@@ -38,4 +38,4 @@ dlopen=''
 dlpreopen=''
 
 # Directory that this library needs to be installed in:
-libdir='/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Debug/lib'
+libdir='/local/work/7e07deaecad6bbbb/ThirdParty/Linden/Mono/Linden/Output/Linux/Debug/lib'

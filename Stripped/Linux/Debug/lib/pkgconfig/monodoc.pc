@@ -1,6 +1,6 @@
-prefix=/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Debug
+prefix=/local/work/7e07deaecad6bbbb/ThirdParty/Linden/Mono/Linden/Output/Linux/Debug
 exec_prefix=${prefix}
-libdir=/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Debug/lib
+libdir=/local/work/7e07deaecad6bbbb/ThirdParty/Linden/Mono/Linden/Output/Linux/Debug/lib
 sourcesdir=${libdir}/monodoc/sources
 
 Name: Monodoc

@@ -1,4 +1,4 @@
 Name: System.Web.Mvc2
 Description: System.Web.Mvc - ASP.NET MVC v2
 Version: 2.0.0.0
-Libs: -r:/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Release/lib/mono/gac/System.Web.Mvc/2.0.0.0__31bf3856ad364e35/System.Web.Mvc.dll
+Libs: -r:/local/work/7e07deaecad6bbbb/ThirdParty/Linden/Mono/Linden/Output/Linux/Release/lib/mono/gac/System.Web.Mvc/2.0.0.0__31bf3856ad364e35/System.Web.Mvc.dll

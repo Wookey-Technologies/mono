@@ -1,4 +1,4 @@
 Name: System.Web.Extensions
 Description: System.Web.Extensions ASP.NET 2.0 add-on
 Version: 1.0.61025.0
-Libs: -r:/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Release/lib/mono/gac/System.Web.Extensions/1.0.61025.0__31bf3856ad364e35/System.Web.Extensions.dll
+Libs: -r:/local/work/7e07deaecad6bbbb/ThirdParty/Linden/Mono/Linden/Output/Linux/Release/lib/mono/gac/System.Web.Extensions/1.0.61025.0__31bf3856ad364e35/System.Web.Extensions.dll

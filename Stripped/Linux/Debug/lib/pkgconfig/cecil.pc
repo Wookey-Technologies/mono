@@ -1,4 +1,4 @@
-assemblies_dir=/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Debug/lib/mono
+assemblies_dir=/local/work/7e07deaecad6bbbb/ThirdParty/Linden/Mono/Linden/Output/Linux/Debug/lib/mono
 Libraries=${assemblies_dir}/gac/Mono.Cecil/0.9.5.0__0738eb9f132ed756/Mono.Cecil.dll
 
 Name: Mono Internal -- Do not use.

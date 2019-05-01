@@ -20,7 +20,7 @@ monolist=($(printf "%s\n" "${monolist[@]}" | egrep "/(gac|Facades|4\\.5)/"))
 # Disabled... see ChangeLog
 
 # Set the prefix, unless it is overriden (used when building mono rpms)
-: ${prefix=/local/work/ebb6c3a46321ad63/ThirdParty/Linden/Mono/Linden/Output/Linux/Release}
+: ${prefix=/local/work/7e07deaecad6bbbb/ThirdParty/Linden/Mono/Linden/Output/Linux/Release}
 
 libdir=$prefix/lib
 bindir=$prefix/bin
