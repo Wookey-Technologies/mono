@@ -691,7 +691,6 @@ mono_config_parse (const char *filename) {
 	user_cfg = g_strconcat (home, G_DIR_SEPARATOR_S, ".mono/config", NULL);
 	mono_config_parse_file (user_cfg);
 	g_free (user_cfg);
-	g_free (home);
 #endif
 }
 
