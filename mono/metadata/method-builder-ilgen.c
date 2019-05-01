@@ -58,10 +58,6 @@ free_ilgen (MonoMethodBuilder *mb)
 {
 	GList *l;
 
-	for (l = mb->locals_list; l; l = l->next) {
-		/* Allocated in mono_mb_add_local () */
-		g_free (l->data);
-	}
 	g_list_free (mb->locals_list);
 	if (!mb->dynamic) {
 		g_free (mb->method);
@@ -219,7 +215,7 @@ mono_mb_add_local (MonoMethodBuilder *mb, MonoType *type)
 	 * Have to make a copy early since type might be sig->ret,
 	 * which is transient, see mono_metadata_signature_dup_internal_with_padding ().
 	 */
-	t = mono_metadata_type_dup (NULL, type);
+	t = mono_metadata_type_dup (mb->method->klass->image, type);
 
 	g_assert (mb != NULL);
 	g_assert (type != NULL);
