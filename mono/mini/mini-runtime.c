@@ -480,14 +480,20 @@ mono_tramp_info_register_internal (MonoTrampInfo *info, MonoDomain *domain, gboo
 	if (!domain)
 		domain = mono_get_root_domain ();
 
-	if (domain)
+	if (domain) {
 		copy = mono_domain_alloc0 (domain, sizeof (MonoTrampInfo));
-	else
+		if (info->name) {
+			guint len = strlen (info->name) + 1;
+			copy->name = mono_domain_alloc (domain, len);
+			memcpy (copy->name, info->name, len);
+		}
+	} else {
 		copy = g_new0 (MonoTrampInfo, 1);
+		copy->name = g_strdup (info->name);
+	}
 
 	copy->code = info->code;
 	copy->code_size = info->code_size;
-	copy->name = g_strdup (info->name);
 
 	if (info->unwind_ops) {
 		copy->uw_info = mono_unwind_ops_encode (info->unwind_ops, &copy->uw_info_len);
