@@ -1,14 +1,19 @@
 #!/bin/bash
 
 set -e 
-SOURCE=$(cd $PWD/../Stripped; pwd)
+SOURCE=$(cd $PWD/Output; pwd)
 DEST=$(cd $1; pwd)
 EXTERNAL=$DEST/Code/External/Mono
+
+if [[ $# -eq 0 ]] ; then
+    echo "usage:  $0 <path to sansar>"
+    exit -1
+fi
 
 
 if [ -d "$EXTERNAL" ]; then
     # copy files to external
-    rsync -am --copy-unsafe-links --delete $SOURCE/* $EXTERNAL
+    rsync -am --copy-unsafe-links $SOURCE/* $EXTERNAL
 
     # copy runtime files
     rsync -am --copy-unsafe-links --existing $EXTERNAL/Linux/Release/lib/mono/4.5/* $DEST/Runtime/Mono/lib/mono/4.5 
@@ -19,6 +24,6 @@ if [ -d "$EXTERNAL" ]; then
     rsync -am $SOURCE/x64/Release/bin/mono-sgen.exe $DEST/Runtime/Mono/bin
     rsync -am $SOURCE/Linux/Release/bin/mono-sgen $DEST/Runtime/Mono/bin
 else
-    echo "couldn't fine $EXTERNAL below $DEST"
+    echo "couldn't find $EXTERNAL below $DEST"
 fi
 

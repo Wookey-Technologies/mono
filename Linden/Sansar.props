@@ -8,6 +8,7 @@
     </ItemGroup>
 
     <Copy SourceFiles="@(BinFiles)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\$(Platform)\$(Configuration)\bin"/>
+    <Copy SourceFiles="@(BinFiles)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\Linux\$(Configuration)\bin"/>
     <Copy SourceFiles="@(LibFiles)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\$(Platform)\$(Configuration)\lib"/>
     <Copy SourceFiles="@(Headers)"  SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\include\%(RecursiveDir)"/>
     <RemoveDir Directories="$(MSBuildProjectDirectory)\..\Linden\Output\include\Linden"/>
