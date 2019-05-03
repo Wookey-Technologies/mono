@@ -5559,8 +5559,11 @@ threads_remove_pending_joinable_thread_nolock (gpointer tid)
 
 	if (pending_joinable_threads && g_hash_table_lookup_extended (pending_joinable_threads, tid, &orig_key, &value)) {
 		g_hash_table_remove (pending_joinable_threads, tid);
-		if (UnlockedDecrement (&pending_joinable_thread_count) == 0)
+		if (UnlockedDecrement (&pending_joinable_thread_count) == 0) {
+			g_hash_table_destroy (pending_joinable_threads);
+			pending_joinable_threads = NULL;
 			mono_os_cond_broadcast (&zero_pending_joinable_thread_event);
+		}
 	}
 }
 
