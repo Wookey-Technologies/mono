@@ -20,11 +20,13 @@ rsync -avm --include='*.h' --include='*.hw' -f 'hide,! */' $base/../ $base/Outpu
 # remove broken symlinks
 find $base/Output/Linux/ -type l -xtype l -prune -exec rm {} +
 
-cp $base/Output/Linux/Release/lib/mono/monodoc/monodoc.dll $base/Output/Linux/Release/lib/mono/4.5/
-cp $base/Output/Linux/Debug/lib/mono/monodoc/monodoc.dll $base/Output/Linux/Debug/lib/mono/4.5/
 
-#replace symlinks with the actual file (cuz windows and UAC difficulties with p4)
-sed -i '' $base/Output/Linux/Release/lib/mono/4.5/**.* || true
-sed -i '' $base/Output/Linux/Debug/lib/mono/4.5/**.* || true
+for config in "${configs[@]}" ; do
+  cp $base/Output/Linux/$config/lib/mono/monodoc/monodoc.dll $base/Output/Linux/$config/lib/mono/4.5/
+
+  cp $base/Output/x64/$config/bin/* $base/Output/Linux/$config/bin || true
+
+  sed -i '' $base/Output/Linux/$config/lib/mono/4.5/**.* || true
+done
 
 cd $base
