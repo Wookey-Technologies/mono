@@ -22,7 +22,7 @@ if [ -d "$EXTERNAL" ]; then
     # copy runtime binaries
     rsync -am $SOURCE/x64/Release/bin/mono-2.0-sgen.* $DEST/Runtime
     rsync -am $SOURCE/x64/Release/bin/mono-sgen.exe $DEST/Runtime/Mono/bin
-    rsync -am $SOURCE/Linux/Release/bin/mono-sgen $DEST/Runtime/Mono/bin
+    rsync -am $SOURCE/Linux/Release/bin/mono-sgen* $DEST/Runtime/Mono/bin
 else
     echo "couldn't find $EXTERNAL below $DEST"
 fi
