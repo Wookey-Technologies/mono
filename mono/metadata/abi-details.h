@@ -61,6 +61,6 @@ enum {
 #endif
 #endif
 
-#define MONO_SIZEOF_MonoObject (2 * MONO_SIZEOF_gpointer)
+#define MONO_SIZEOF_MonoObject (3 * MONO_SIZEOF_gpointer)
 
 #endif

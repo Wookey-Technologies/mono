@@ -1,0 +1,76 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    Environment variables   Default				; Comment
+    BUILD_PLATFORMS       = x64						; delimited list of platforms
+    BUILD_CONFIGURATIONS  = Release;Debug ; delimted list of configurations 
+    BUILD_TARGETS         = Runtime\mono          ; can also build individual projects like: Applications\Injector:Rebuild;Libraries\LLScript:Clean
+  -->
+  <PropertyGroup Label="UserMacros">
+    <BUILD_TARGETS Condition="$(BUILD_TARGETS) == ''">Runtime\mono</BUILD_TARGETS>
+  </PropertyGroup>
+
+  <!-- Default list of platforms -->
+  <Choose>
+    <When Condition="$(BUILD_PLATFORMS) == ''">
+      <ItemGroup>
+        <BuildPlatforms Include="x64"/>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <BuildPlatforms Include="$(BUILD_PLATFORMS)"/>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <!-- Default list of configurations -->
+  <Choose>
+    <When Condition="$(BUILD_CONFIGURATIONS) == ''">
+      <ItemGroup>
+        <!-- I haven't tracked down why, but config.h is not created properly in some other orderings of these build targets <BuildConfigurations Include="Release_SGen;Debug_SGen;Release;Debug"/> -->
+        <BuildConfigurations Include="Release;Debug"/>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <BuildConfigurations Include="$(BUILD_CONFIGURATIONS)"/>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <Target Name="Build" DependsOnTargets = "BuildMS">
+    <!-- Generate Configurations X Platforms -->
+    <CreateItem Include="@(BuildConfigurations)"
+                AdditionalMetadata="Platform=%(BuildPlatforms.Identity)">
+      <Output ItemName="PlatformConfigurations"
+              TaskParameter="Include"/>
+    </CreateItem>
+
+    <Message Importance="high"
+             Text="Building: %(PlatformConfigurations.Platform)|%(PlatformConfigurations.Identity)" />
+
+  </Target>
+ 
+  <Target Name="RemoveDirectories">
+    <RemoveDir Directories="Output/%(BuildPlatforms.Identity);Output/Win32" />
+  </Target>
+  
+  <Target Name="BuildMS" DependsOnTargets = "RemoveDirectories" >
+    <!-- Generate Configurations X Platforms -->
+    <CreateItem Include="@(BuildConfigurations)"
+                AdditionalMetadata="Platform=%(BuildPlatforms.Identity)">
+      <Output ItemName="PlatformConfigurations"
+              TaskParameter="Include"/>
+    </CreateItem>
+
+    <!-- Build with MS compiler -->
+    <MSBuild 
+             Projects="../msvc/mono.sln"
+             Properties="Configuration=%(PlatformConfigurations.Identity);Platform=%(PlatformConfigurations.Platform);$(CommonProperties)"
+             BuildInParallel="true"
+             Targets="$(BUILD_TARGETS)" />
+
+  </Target>
+
+</Project>
+

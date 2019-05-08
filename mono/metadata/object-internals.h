@@ -703,7 +703,7 @@ typedef struct {
 	void (*mono_register_native_library) (const char *module_path, const char *module_name);
 } MonoRuntimeExceptionHandlingCallbacks;
 
-MONO_COLD void mono_set_pending_exception (MonoException *exc);
+MONO_COLD MONO_API void mono_set_pending_exception (MonoException *exc);
 
 /* remoting and async support */
 

@@ -1,0 +1,11 @@
+<manifest>
+    <platform type="win64">
+        <file dest="x64/">Linden/Output/x64/*</file>
+    </platform>
+    <platform type="linux">
+    	<delete>Stripped/*<delete>
+        <delete>Linden/Output/include/*</delete>
+        <file dest="include/">Linden/Output/include/*</file>
+        <file dest="Linux/">Linden/Output/Linux/*</file>
+    </platform>
+</manifest>
