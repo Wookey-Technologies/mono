@@ -24,6 +24,7 @@
 #include <stddef.h>
 #include <ctype.h>
 #include <limits.h>
+#define ENABLE_OVERRIDABLE_ALLOCATORS
 #include <stdint.h>
 #include <inttypes.h>
 #ifdef _MSC_VER

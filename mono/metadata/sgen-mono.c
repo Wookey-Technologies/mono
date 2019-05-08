@@ -1996,6 +1996,39 @@ mono_gc_walk_heap (int flags, MonoGCReferences callback, void *data)
 	return 0;
 }
 
+static void
+callback_size_only (GCObject *start, size_t size, void *data)
+{
+	HeapWalkInfo *hwi = (HeapWalkInfo *)data;
+	hwi->callback (start, mono_object_class (start), size, 0, 0, 0, hwi->data);
+}
+
+int
+mono_gc_step_heap (int flags, MonoGCReferences callback, int start_block, int max_blocks, int section_flags, void *data)
+{
+	HeapWalkInfo hwi;
+
+	hwi.callback = callback;
+	hwi.data	 = data;
+
+    IterateObjectCallbackFunc walk = (flags & MONO_HEAP_WALK_FLAGS_NO_REFS) ? callback_size_only : walk_references;
+
+	int remaining_blocks = 0;
+
+	if (section_flags & MONO_HEAP_WALK_SECTION_NURSERY) {
+		sgen_clear_nursery_fragments ();
+		sgen_scan_area_with_callback (sgen_nursery_section->data, sgen_nursery_section->end_data, walk, &hwi, FALSE, TRUE);
+	}
+
+    if (section_flags & MONO_HEAP_WALK_SECTION_MAJOR)
+		remaining_blocks = sgen_major_collector.iterate_some_objects (ITERATE_OBJECTS_SWEEP_ALL, walk, &hwi, start_block, max_blocks);
+
+	if (section_flags & MONO_HEAP_WALK_SECTION_LOS)
+		sgen_los_iterate_objects (walk, &hwi);
+
+	return remaining_blocks;
+}
+
 /*
  * Threads
  */
@@ -2432,6 +2465,12 @@ gboolean
 mono_gc_precise_stack_mark_enabled (void)
 {
 	return !conservative_stack_mark;
+}
+
+void
+mono_gc_run_on_stopped_world (void (*func) (void *), void *user_data)
+{
+	sgen_run_on_stopped_world (func, user_data);
 }
 
 void

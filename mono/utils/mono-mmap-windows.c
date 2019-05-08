@@ -20,8 +20,8 @@
 
 static void *malloced_shared_area;
 
-int
-mono_pagesize (void)
+static int
+mono_pagesize_default (void)
 {
 	SYSTEM_INFO info;
 	static int saved_pagesize = 0;
@@ -32,8 +32,8 @@ mono_pagesize (void)
 	return saved_pagesize;
 }
 
-int
-mono_valloc_granule (void)
+static int
+mono_valloc_granule_default (void)
 {
 	SYSTEM_INFO info;
 	static int saved_valloc_granule = 0;
@@ -63,8 +63,8 @@ mono_mmap_win_prot_from_flags (int flags)
 	return prot;
 }
 
-void*
-mono_valloc (void *addr, size_t length, int flags, MonoMemAccountType type)
+static void *
+mono_valloc_default (void *addr, size_t length, int flags, MonoMemAccountType type)
 {
 	if (!mono_valloc_can_alloc (length))
 		return NULL;
@@ -81,8 +81,8 @@ mono_valloc (void *addr, size_t length, int flags, MonoMemAccountType type)
 	return ptr;
 }
 
-void*
-mono_valloc_aligned (size_t length, size_t alignment, int flags, MonoMemAccountType type)
+static void *
+mono_valloc_aligned_default (size_t length, size_t alignment, int flags, MonoMemAccountType type)
 {
 	int prot = mono_mmap_win_prot_from_flags (flags);
 	char *mem = (char*)VirtualAlloc (NULL, length + alignment, MEM_RESERVE, prot);
@@ -104,8 +104,8 @@ mono_valloc_aligned (size_t length, size_t alignment, int flags, MonoMemAccountT
 	return aligned;
 }
 
-int
-mono_vfree (void *addr, size_t length, MonoMemAccountType type)
+static int
+mono_vfree_default (void *addr, size_t length, MonoMemAccountType type)
 {
 	MEMORY_BASIC_INFORMATION mbi;
 	SIZE_T query_result = VirtualQuery (addr, &mbi, sizeof (mbi));
@@ -221,8 +221,8 @@ mono_file_unmap (void *addr, void *handle)
 
 #endif // G_HAVE_API_SUPPORT(HAVE_CLASSIC_WINAPI_SUPPORT) || G_HAVE_API_SUPPORT(HAVE_UWP_WINAPI_SUPPORT)
 
-int
-mono_mprotect (void *addr, size_t length, int flags)
+static int
+mono_mprotect_default (void *addr, size_t length, int flags)
 {
 	DWORD oldprot;
 	int prot = mono_mmap_win_prot_from_flags (flags);
@@ -268,5 +268,70 @@ mono_shared_area_instances (void **array, int count)
 {
 	return 0;
 }
+
+
+static MonoAllocMethods gMonoAllocMethods = 
+{
+    mono_pagesize_default,
+    mono_valloc_granule_default,
+    mono_valloc_default,
+    mono_valloc_aligned_default,
+    mono_vfree_default,
+    mono_mprotect_default
+};
+
+
+
+int
+mono_pagesize (void)
+{
+	return gMonoAllocMethods.mono_pagesize ();
+}
+int
+mono_valloc_granule (void)
+{
+	return gMonoAllocMethods.mono_valloc_granule ();
+}
+void *
+mono_valloc (void *addr, size_t length, int flags, MonoMemAccountType type)
+{
+	return gMonoAllocMethods.mono_valloc (addr, length, flags, type);
+}
+void *
+mono_valloc_aligned (size_t length, size_t alignment, int flags, MonoMemAccountType type)
+{
+	return gMonoAllocMethods.mono_valloc_aligned (length, alignment, flags, type);
+}
+int
+mono_vfree (void *addr, size_t length, MonoMemAccountType type)
+{
+	return gMonoAllocMethods.mono_vfree (addr, length, type);
+}
+
+int
+mono_mprotect (void *addr, size_t length, int flags)
+{
+	return gMonoAllocMethods.mono_mprotect (addr, length, flags);
+}
+
+#if defined(ENABLE_OVERRIDABLE_VALLOCATORS)
+void
+mono_set_alloc_methods (MonoAllocMethods *alloc_methods)
+{
+	gMonoAllocMethods.mono_pagesize		  = alloc_methods->mono_pagesize ? alloc_methods->mono_pagesize : mono_pagesize_default;
+	gMonoAllocMethods.mono_valloc_granule = alloc_methods->mono_valloc_granule ? alloc_methods->mono_valloc_granule : mono_valloc_granule_default;
+	gMonoAllocMethods.mono_valloc		  = alloc_methods->mono_valloc ? alloc_methods->mono_valloc : mono_valloc_default;
+	gMonoAllocMethods.mono_valloc_aligned = alloc_methods->mono_valloc_aligned ? alloc_methods->mono_valloc_aligned : mono_valloc_aligned_default;
+	gMonoAllocMethods.mono_vfree		  = alloc_methods->mono_vfree ? alloc_methods->mono_vfree : mono_vfree_default;
+	gMonoAllocMethods.mono_mprotect		  = alloc_methods->mono_mprotect ? alloc_methods->mono_mprotect : mono_mprotect_default;
+}
+
+MonoAllocMethods
+mono_get_alloc_methods (void)
+{
+	return gMonoAllocMethods;
+}
+
+#endif // ENABLE_OVERRIDABLE_VALLOCATORS
 
 #endif // HOST_WIN32

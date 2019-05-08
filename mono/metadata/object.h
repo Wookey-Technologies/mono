@@ -9,6 +9,7 @@
 #include <mono/metadata/object-forward.h>
 #include <mono/metadata/class.h>
 #include <mono/utils/mono-error.h>
+#include <stddef.h>
 
 MONO_BEGIN_DECLS
 
@@ -33,6 +34,7 @@ typedef struct _MonoAppContext MONO_RT_MANAGED_ATTR MonoAppContext;
 struct _MonoObject {
 	MonoVTable *vtable;
 	MonoThreadsSync *synchronisation;
+	ptrdiff_t tracking_id;
 };
 
 typedef MonoObject* (*MonoInvokeFunc)	     (MonoMethod *method, void *obj, void **params, MonoObject **exc, MonoError *error);

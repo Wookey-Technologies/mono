@@ -979,6 +979,46 @@ major_iterate_objects (IterateObjectsFlags flags, IterateObjectCallbackFunc call
 	} END_FOREACH_BLOCK_NO_LOCK;
 }
 
+static int
+major_iterate_some_objects (IterateObjectsFlags flags, IterateObjectCallbackFunc callback, void *data, int start_block, int max_blocks)
+{
+	gboolean sweep = flags & ITERATE_OBJECTS_SWEEP;
+	gboolean non_pinned = flags & ITERATE_OBJECTS_NON_PINNED;
+	gboolean pinned = flags & ITERATE_OBJECTS_PINNED;
+	MSBlockInfo *block;
+
+	int remaining_blocks = 0;
+
+	/* No actual sweeping will take place if we are in the middle of a major collection. */
+	major_finish_sweep_checking ();
+	FOREACH_BLOCK_NO_LOCK (block) {
+		const int limit = MS_BLOCK_FREE / block->obj_size;
+		const int end = start_block + max_blocks;
+		const int count = (end < limit) ? end : limit;
+		const int remaining = limit - end;
+		int i = start_block < limit ? start_block : limit;
+
+		if (remaining_blocks < remaining)
+			remaining_blocks = remaining;
+
+		if (block->pinned && !pinned)
+			continue;
+		if (!block->pinned && !non_pinned)
+			continue;
+		if (sweep && lazy_sweep && !block_is_swept_or_marking (block)) {
+			sweep_block (block);
+			SGEN_ASSERT (6, block->state == BLOCK_STATE_SWEPT, "Block must be swept after sweeping");
+		}
+
+		for (i = 0; i < count; ++i) {
+			void **obj = (void**) MS_BLOCK_OBJ (block, i);
+			if (MS_OBJ_ALLOCED (obj, block))
+				callback ((GCObject*)obj, block->obj_size, data);
+		}
+	} END_FOREACH_BLOCK_NO_LOCK;
+	return remaining_blocks;
+}
+
 static gboolean
 major_is_valid_object (char *object)
 {
@@ -2885,6 +2925,7 @@ sgen_marksweep_init_internal (SgenMajorCollector *collector, gboolean is_concurr
 	collector->alloc_object_par = major_alloc_object_par;
 	collector->free_pinned_object = free_pinned_object;
 	collector->iterate_objects = major_iterate_objects;
+	collector->iterate_some_objects = major_iterate_some_objects;
 	collector->free_non_pinned_object = major_free_non_pinned_object;
 	collector->pin_objects = major_pin_objects;
 	collector->pin_major_object = pin_major_object;
