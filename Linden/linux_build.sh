@@ -55,7 +55,7 @@ done
 
 cd $base
 
-./linux_install.sh
+./linux_install.sh $BUILD_CONFIGURATIONS
 
 #build cecil
 ./build_cecil.sh || true
