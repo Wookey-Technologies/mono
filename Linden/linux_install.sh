@@ -15,18 +15,24 @@ for config in "${configs[@]}" ; do
 done
 
 #copy headers
-rsync -avm --include='*.h' --include='*.hw' -f 'hide,! */' $base/../ $base/Output/include --exclude='Linden'
+echo "Copying headers"
+rsync --stats -am --include='*.h' --include='*.hw' -f 'hide,! */' $base/../ $base/Output/include --exclude='Linden'
 
 # remove broken symlinks
-find $base/Output/Linux/ -type l -xtype l -prune -exec rm {} +
+find $base/Output/Linux/ -type l -xtype l -prune -exec rm -v {} +
 
+if   [[   -d "$base/Output/Linux/Release" && ! -d "$base/Output/Linux/Debug" ]]; then
+	rsync -am $base/Output/Linux/Release/* $base/Output/Linux/Debug
+elif [[ ! -d "$base/Output/Linux/Release" &&   -d "$base/Output/Linux/Debug" ]]; then
+	rsync -am $base/Output/Linux/Debug/* $base/Output/Linux/Release
+fi
 
 for config in "${configs[@]}" ; do
-  cp $base/Output/Linux/$config/lib/mono/monodoc/monodoc.dll $base/Output/Linux/$config/lib/mono/4.5/
+  cp $base/Output/Linux/$config/lib/mono/monodoc/monodoc.dll $base/Output/Linux/$config/lib/mono/4.5/ 2> /dev/null || true
 
-  cp $base/Output/x64/$config/bin/* $base/Output/Linux/$config/bin || true
+  cp $base/Output/x64/$config/bin/* $base/Output/Linux/$config/bin 2> /dev/null || true
 
-  sed -i '' $base/Output/Linux/$config/lib/mono/4.5/**.* || true
+  find $base/Output/Linux/$config/lib/mono -type l -exec sed -i '' {} +
 done
 
 cd $base

@@ -7,10 +7,10 @@
       <Headers  Include="$(MSBuildProjectDirectory)\..\**\*.h;$(MSBuildProjectDirectory)\..\**\*.hw"/>
     </ItemGroup>
 
-    <Copy SourceFiles="@(BinFiles)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\$(Platform)\$(Configuration)\bin"/>
-    <Copy SourceFiles="@(BinFiles)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\Linux\$(Configuration)\bin"/>
-    <Copy SourceFiles="@(LibFiles)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\$(Platform)\$(Configuration)\lib"/>
-    <Copy SourceFiles="@(Headers)"  SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\include\%(RecursiveDir)"/>
+    <Copy SourceFiles="@(BinFiles)" ContinueOnError="true" Retries="0" SkipUnchangedFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\$(Platform)\$(Configuration)\bin"/>
+    <Copy SourceFiles="@(BinFiles)" ContinueOnError="true" Retries="0" SkipUnchangedFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\Linux\$(Configuration)\bin"/>
+    <Copy SourceFiles="@(LibFiles)" ContinueOnError="true" Retries="0" SkipUnchangedFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\$(Platform)\$(Configuration)\lib"/>
+    <Copy SourceFiles="@(Headers)"  ContinueOnError="true" Retries="0" SkipUnchangedFiles="true" DestinationFolder="$(MSBuildProjectDirectory)\..\Linden\Output\include\%(RecursiveDir)"/>
     <RemoveDir Directories="$(MSBuildProjectDirectory)\..\Linden\Output\include\Linden"/>
   </Target> 
 </Project>

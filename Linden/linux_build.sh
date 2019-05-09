@@ -5,24 +5,53 @@ set -e
 
 base=$PWD
 configure_options='--with-mcs-docs=no --with-overridable-allocators --with-large-heap=yes'
-rm -rf $base/Output/Linux $base/Output/include
+configs=("Release" "Debug")
+
+
+if [[ ! -z "$1" ]]; then
+	BUILD_CONFIGURATIONS="$1"
+fi
+
+if [ -z "$BUILD_CONFIGURATIONS" ]; then
+	BUILD_CONFIGURATIONS="Release;Debug"
+fi
+
+install_dirs=(".")
+
+if [[ ! -z "${@:2}" ]]; then
+	install_dirs=(${@:2})
+else
+	rm -rf $base/Output/Linux $base/Output/include
+fi
+
 cd ..
 
-export NOCONFIGURE=1
-./autogen.sh
+for config in "${configs[@]}" ; do
+	if [[ $BUILD_CONFIGURATIONS == *$config* ]]; then
+		export CFLAGS="-DPIC_INITIAL_EXEC -w"
+		if [[ "Debug" == $config ]]; then 
+			export CFLAGS="-O0 $CFLAGS"
+		fi
+		printf "Building $config with $CFLAGS\n===========================\n===========================\n===========================\n===========================\n"
 
-export CFLAGS="-DPIC_INITIAL_EXEC -w"
-printf "Building Release\n===========================\n===========================\n===========================\n===========================\n"
-./configure  --prefix=$base/Output/Linux/Release $configure_options
-make || make
-make install
+		LAST_BUILD=$(cat $base/.last_build 2>/dev/null) || true
 
-make clean
-printf "Building Debug\n===========================\n===========================\n===========================\n===========================\n"
-export CFLAGS="-O0 -w -DPIC_INITIAL_EXEC"
-./configure  --prefix=$base/Output/Linux/Debug $configure_options
-make || make
-make install
+		if [ -z "$LAST_BUILD" ]; then		
+			export NOCONFIGURE=1
+			./autogen.sh
+		fi
+
+		if [[ "$LAST_BUILD" != "$config" ]]; then
+			make clean || true 
+			./configure  --prefix=$base/Output/Linux/$config $configure_options
+			make 
+			echo $config > $base/.last_build
+		fi 
+		for install_dir in "${install_dirs[@]}" ; do 
+			(cd $base/../$install_dir && make install)
+		done
+	fi
+done
 
 cd $base
 
@@ -32,4 +61,3 @@ cd $base
 ./build_cecil.sh || true
 ./build_json.sh
 
-echo "You should now reconcile $base/Output"
