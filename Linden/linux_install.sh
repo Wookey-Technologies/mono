@@ -4,60 +4,45 @@
 set -e
 
 base=$PWD
-configure_options='--with-mcs-docs=no --with-overridable-allocators --with-large-heap=yes'
-configs=("Release" "Debug")
 
-
-if [[ ! -z "$1" ]]; then
-	BUILD_CONFIGURATIONS="$1"
-fi
+BUILD_CONFIGURATIONS="$1"
 
 if [ -z "$BUILD_CONFIGURATIONS" ]; then
-	BUILD_CONFIGURATIONS="Release;Debug"
+  echo "no build configurations specified"
+	exit -1
 fi
 
-install_dirs=(".")
-
-if [[ ! -z "${@:2}" ]]; then
-	install_dirs=(${@:2})
-else
-	rm -rf $base/Output/Linux $base/Output/include
-fi
-
-cd ..
-
-for config in "${configs[@]}" ; do
-	if [[ $BUILD_CONFIGURATIONS == *$config* ]]; then
-		export CFLAGS="-DPIC_INITIAL_EXEC -w"
-		if [[ "Debug" == $config ]]; then 
-			export CFLAGS="-O0 $CFLAGS"
-		fi
-		printf "Building $config with $CFLAGS\n===========================\n===========================\n===========================\n===========================\n"
-
-		LAST_BUILD=$(cat $base/.last_build 2>/dev/null) || true
-
-		if [ -z "$LAST_BUILD" ]; then		
-			export NOCONFIGURE=1
-			./autogen.sh
-		fi
-
-		if [[ "$LAST_BUILD" != "$config" ]]; then
-			make clean || true 
-			./configure  --prefix=$base/Output/Linux/$config $configure_options
-			make 
-			echo $config > $base/.last_build
-		fi 
-		for install_dir in "${install_dirs[@]}" ; do 
-			(cd $base/../$install_dir && make install)
-		done
-	fi
+#remove old profiles
+profiles=("2.0-api" "3.5-api" "4.0" "4.0-api"  "4.5.1-api"  "4.5.2-api"  "4.6.1-api"  "4.6.2-api"  "4.6-api"  "4.7.1-api"  "4.7-api")
+configs=("Debug" "Release")
+for config in "${configs[@]}" ; do 
+  if [[ $BUILD_CONFIGURATIONS == *$config* ]]; then
+    for profile in "${profiles[@]}" ; do
+      rm -rf $base/Output/Linux/$config/lib/mono/$profile
+    done
+  fi
 done
 
+#copy headers
+echo "Copying headers"
+rsync --stats -am --include='*.h' --include='*.hw' -f 'hide,! */' $base/../mono $base/Output/include/
+rsync -am $base/../*.h $base/Output/include
+
+# remove broken symlinks
+find $base/Output/Linux/ -type l -xtype l -prune -exec rm -v {} +
+
+for config in "${configs[@]}" ; do
+  if [[ $BUILD_CONFIGURATIONS == *$config* ]]; then
+    cp $base/Output/Linux/$config/lib/mono/monodoc/monodoc.dll $base/Output/Linux/$config/lib/mono/4.5/ 2> /dev/null || true
+
+    cp $base/Output/x64/$config/bin/* $base/Output/Linux/$config/bin 2> /dev/null || true
+
+    find $base/Output/Linux/$config/lib/mono -type l -exec sed -i '' {} +
+  fi
+done
+
+if [[ $BUILD_CONFIGURATIONS != *"Release"* ]]; then
+  echo "copying Debug to Release"
+  rsync --stats -am --ignore-existing $base/Output/Linux/Debug/* $base/Output/Linux/Release
+fi
 cd $base
-
-./linux_install.sh $BUILD_CONFIGURATIONS
-
-#build cecil
-./build_cecil.sh || true
-./build_json.sh
-
