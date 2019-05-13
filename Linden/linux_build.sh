@@ -27,7 +27,7 @@ cd ..
 
 function build_config {
 
-	config = $1
+	local config=$1
 
 	if [[ $BUILD_CONFIGURATIONS == *$config* ]]; then
 		export CFLAGS="-DPIC_INITIAL_EXEC -w"
