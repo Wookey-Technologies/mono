@@ -5,7 +5,6 @@ set -e
 
 base=$PWD
 configure_options='--with-mcs-docs=no --with-overridable-allocators --with-large-heap=yes'
-configs=("Release" "Debug")
 
 
 if [[ ! -z "$1" ]]; then
@@ -26,7 +25,10 @@ fi
 
 cd ..
 
-for config in "${configs[@]}" ; do
+function build_config {
+
+	config = $1
+
 	if [[ $BUILD_CONFIGURATIONS == *$config* ]]; then
 		export CFLAGS="-DPIC_INITIAL_EXEC -w"
 		if [[ "Debug" == $config ]]; then 
@@ -51,7 +53,12 @@ for config in "${configs[@]}" ; do
 			(cd $base/../$install_dir && make install)
 		done
 	fi
-done
+
+}
+
+build_config Release
+build_config Debug
+
 
 cd $base
 
