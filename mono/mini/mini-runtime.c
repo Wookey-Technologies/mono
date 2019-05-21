@@ -3699,14 +3699,14 @@ mono_get_delegate_virtual_invoke_impl_name (gboolean load_imt_reg, int offset)
 	return g_strdup_printf ("delegate_virtual_invoke%s_%s%d", load_imt_reg ? "_imt" : "", offset < 0 ? "m_" : "", abs_offset / TARGET_SIZEOF_VOID_P);
 }
 
+static guint8 **delegate_virtual_invoke_cache = NULL;
+static int delegate_virtual_invoke_cache_size = 0;
+
 gpointer
 mono_get_delegate_virtual_invoke_impl (MonoMethodSignature *sig, MonoMethod *method)
 {
 	gboolean is_virtual_generic, is_interface, load_imt_reg;
 	int offset, idx;
-
-	static guint8 **cache = NULL;
-	static int cache_size = 0;
 
 	if (!method)
 		return NULL;
@@ -3727,35 +3727,35 @@ mono_get_delegate_virtual_invoke_impl (MonoMethodSignature *sig, MonoMethod *met
 	g_assert (idx >= 0);
 
 	/* Resize the cache to idx + 1 */
-	if (cache_size < idx + 1) {
+	if (delegate_virtual_invoke_cache_size < idx + 1) {
 		mono_jit_lock ();
-		if (cache_size < idx + 1) {
+		if (delegate_virtual_invoke_cache_size < idx + 1) {
 			guint8 **new_cache;
 			int new_cache_size = idx + 1;
 
 			new_cache = g_new0 (guint8*, new_cache_size);
-			if (cache)
-				memcpy (new_cache, cache, cache_size * sizeof (guint8*));
-			g_free (cache);
+			if (delegate_virtual_invoke_cache)
+				memcpy (new_cache, delegate_virtual_invoke_cache, delegate_virtual_invoke_cache_size * sizeof (guint8*));
+			g_free (delegate_virtual_invoke_cache);
 
 			mono_memory_barrier ();
-			cache = new_cache;
-			cache_size = new_cache_size;
+			delegate_virtual_invoke_cache = new_cache;
+			delegate_virtual_invoke_cache_size = new_cache_size;
 		}
 		mono_jit_unlock ();
 	}
 
-	if (cache [idx])
-		return cache [idx];
+	if (delegate_virtual_invoke_cache [idx])
+		return delegate_virtual_invoke_cache [idx];
 
 	/* FIXME Support more cases */
 	if (mono_ee_features.use_aot_trampolines) {
-		cache [idx] = (guint8 *)mono_aot_get_trampoline (mono_get_delegate_virtual_invoke_impl_name (load_imt_reg, offset));
-		g_assert (cache [idx]);
+		delegate_virtual_invoke_cache [idx] = (guint8 *)mono_aot_get_trampoline (mono_get_delegate_virtual_invoke_impl_name (load_imt_reg, offset));
+		g_assert (delegate_virtual_invoke_cache [idx]);
 	} else {
-		cache [idx] = (guint8 *)mono_arch_get_delegate_virtual_invoke_impl (sig, method, offset, load_imt_reg);
+		delegate_virtual_invoke_cache [idx] = (guint8 *)mono_arch_get_delegate_virtual_invoke_impl (sig, method, offset, load_imt_reg);
 	}
-	return cache [idx];
+	return delegate_virtual_invoke_cache [idx];
 }
 
 /**
@@ -4924,6 +4924,12 @@ mini_cleanup (MonoDomain *domain)
 #ifndef HOST_WIN32
 	mono_w32handle_cleanup ();
 #endif
+
+    mono_image_free_orphaned_hash ();	
+	
+	g_free (delegate_virtual_invoke_cache);
+	delegate_virtual_invoke_cache_size = 0;
+	delegate_virtual_invoke_cache = NULL;
 }
 
 void

@@ -4380,6 +4380,24 @@ static const int static_data_size [NUM_STATIC_DATA_IDX] = {
 static MonoBitSet *thread_reference_bitmaps [NUM_STATIC_DATA_IDX];
 static MonoBitSet *context_reference_bitmaps [NUM_STATIC_DATA_IDX];
 
+void cleanup_freelist (StaticDataFreeList* freelist)
+{
+	while (freelist) {
+		thread_static_info.freelist = freelist->next;
+		g_free (freelist);
+		freelist = thread_static_info.freelist;
+	}
+}
+void
+mono_thread_final_cleanup(void)
+{
+
+	g_hash_table_destroy (joinable_threads);
+
+	cleanup_freelist (thread_static_info.freelist);
+	cleanup_freelist (context_static_info.freelist);
+}
+
 static void
 mark_slots (void *addr, MonoBitSet **bitmaps, MonoGCMarkFunc mark_func, void *gc_data)
 {
