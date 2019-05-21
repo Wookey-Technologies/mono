@@ -1961,6 +1961,29 @@ mono_dynamic_stream_reset (MonoDynamicStream* stream)
 	}
 }
 
+static GHashTable *orphaned = NULL;
+static void
+free_key (gpointer key, gpointer value, gpointer user_data)
+{
+	g_free (key);
+}
+void
+mono_image_free_orphaned_hash ()
+{
+	if (orphaned != NULL) {
+		printf ("orphaned hash size=%d\n", g_hash_table_size (orphaned));
+		g_hash_table_foreach (orphaned, free_key, NULL);
+		g_hash_table_destroy (orphaned);
+		orphaned = NULL;
+	}
+}
+static void
+orphan_hash (gpointer key, gpointer value, gpointer user_data)
+{
+	if (orphaned == NULL)
+		orphaned = g_hash_table_new (NULL, NULL);
+	g_hash_table_insert (orphaned, key, NULL);
+}
 static inline void
 free_hash (GHashTable *hash)
 {
@@ -1968,17 +1991,25 @@ free_hash (GHashTable *hash)
 		g_hash_table_destroy (hash);
 }
 
+static inline void
+orphan_free_hash (GHashTable *hash)
+{
+	if (hash) {
+		g_hash_table_foreach (hash, orphan_hash, hash);
+		free_hash (hash);
+	}
+}
 void
 mono_wrapper_caches_free (MonoWrapperCaches *cache)
 {
 	free_hash (cache->delegate_invoke_cache);
 	free_hash (cache->delegate_begin_invoke_cache);
 	free_hash (cache->delegate_end_invoke_cache);
-	free_hash (cache->runtime_invoke_signature_cache);
+	orphan_free_hash (cache->runtime_invoke_signature_cache);
 	
 	free_hash (cache->delegate_abstract_invoke_cache);
 
-	free_hash (cache->runtime_invoke_method_cache);
+	orphan_free_hash (cache->runtime_invoke_method_cache);
 	free_hash (cache->managed_wrapper_cache);
 
 	free_hash (cache->native_wrapper_cache);
