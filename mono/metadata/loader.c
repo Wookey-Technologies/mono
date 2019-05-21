@@ -1161,6 +1161,7 @@ static void
 remove_cached_module(gpointer key, gpointer value, gpointer user_data)
 {
 	mono_dl_close((MonoDl*)value);
+	g_free (key);
 }
 
 static void
