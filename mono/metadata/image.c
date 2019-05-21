@@ -1971,7 +1971,9 @@ void
 mono_image_free_orphaned_hash ()
 {
 	if (orphaned != NULL) {
+#ifdef ORPHAN_HASH_DEBUG 
 		printf ("orphaned hash size=%d\n", g_hash_table_size (orphaned));
+#endif
 		g_hash_table_foreach (orphaned, free_key, NULL);
 		g_hash_table_destroy (orphaned);
 		orphaned = NULL;
