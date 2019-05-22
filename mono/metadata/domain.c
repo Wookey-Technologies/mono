@@ -1048,6 +1048,76 @@ unregister_vtable_reflection_type (MonoVTable *vtable)
 		MONO_GC_UNREGISTER_ROOT_IF_MOVING (vtable->type);
 }
 
+static void
+clear_cached_vtable (MonoVTable *vtable)
+{
+	MonoClass *klass = vtable->klass;
+	MonoDomain *domain = vtable->domain;
+	MonoClassRuntimeInfo *runtime_info;
+	void *data;
+
+	runtime_info = m_class_get_runtime_info (klass);
+	if (runtime_info && runtime_info->max_domain >= domain->domain_id)
+		runtime_info->domain_vtables[domain->domain_id] = NULL;
+	if (m_class_has_static_refs (klass) && (data = mono_vtable_get_static_field_data (vtable)))
+		mono_gc_free_fixed (data);
+}
+
+static G_GNUC_UNUSED void
+zero_static_data (MonoVTable *vtable)
+{
+	MonoClass *klass = vtable->klass;
+	void *data;
+
+	if (m_class_has_static_refs (klass) && (data = mono_vtable_get_static_field_data (vtable)))
+		mono_gc_bzero_aligned (data, mono_class_data_size (klass));
+}
+
+static void
+deregister_reflection_info_roots_from_list (MonoImage *image)
+{
+	GSList *list = image->reflection_info_unregister_classes;
+
+	while (list) {
+		MonoClass *klass = (MonoClass *)list->data;
+
+		mono_class_free_ref_info (klass);
+
+		list = list->next;
+	}
+
+	image->reflection_info_unregister_classes = NULL;
+}
+
+static void
+deregister_reflection_info_roots (MonoDomain *domain)
+{
+	GSList *list;
+
+	mono_domain_assemblies_lock (domain);
+	for (list = domain->domain_assemblies; list; list = list->next) {
+		MonoAssembly *assembly = (MonoAssembly *)list->data;
+		MonoImage *image = assembly->image;
+		int i;
+
+		/*
+		 * No need to take the image lock here since dynamic images are appdomain bound and
+		 * at this point the mutator is gone.  Taking the image lock here would mean
+		 * promoting it from a simple lock to a complex lock, which we better avoid if
+		 * possible.
+		 */
+		if (image_is_dynamic (image))
+			deregister_reflection_info_roots_from_list (image);
+
+		for (i = 0; i < image->module_count; ++i) {
+			MonoImage *module = image->modules[i];
+			if (module && image_is_dynamic (module))
+				deregister_reflection_info_roots_from_list (module);
+		}
+	}
+	mono_domain_assemblies_unlock (domain);
+}
+
 /**
  * mono_domain_free:
  * \param domain the domain to release
@@ -1063,6 +1133,7 @@ mono_domain_free (MonoDomain *domain, gboolean force)
 	int code_size, code_alloc;
 	GSList *tmp;
 	gpointer *p;
+	int i;
 
 	if ((domain == mono_root_domain) && !force) {
 		g_warning ("cant unload root domain");
@@ -1071,6 +1142,38 @@ mono_domain_free (MonoDomain *domain, gboolean force)
 
 	if (mono_dont_free_domains)
 		return;
+
+    /* Clear references to our vtables in class->runtime_info.
+	 * We also hold the loader lock because we're going to change
+	 * class->runtime_info.
+	 */
+
+	mono_loader_lock (); //FIXME why do we need the loader lock here?
+	mono_domain_lock (domain);
+	/*
+	 * We need to make sure that we don't have any remsets
+	 * pointing into static data of the to-be-freed domain because
+	 * at the next collections they would be invalid.  So what we
+	 * do is we first zero all static data and then do a minor
+	 * collection.  Because all references in the static data will
+	 * now be null we won't do any unnecessary copies and after
+	 * the collection there won't be any more remsets.
+	 */
+	for (i = 0; i < domain->class_vtable_array->len; ++i)
+		zero_static_data ((MonoVTable *)g_ptr_array_index (domain->class_vtable_array, i));
+	mono_gc_collect (0);
+	for (i = 0; i < domain->class_vtable_array->len; ++i)
+		clear_cached_vtable ((MonoVTable *)g_ptr_array_index (domain->class_vtable_array, i));
+	deregister_reflection_info_roots (domain);
+
+	mono_assembly_cleanup_domain_bindings (domain->domain_id);
+
+	mono_domain_unlock (domain);
+	mono_loader_unlock ();
+
+	domain->state = MONO_APPDOMAIN_UNLOADED;
+
+
 
 	MONO_PROFILER_RAISE (domain_unloading, (domain));
 
