@@ -4461,7 +4461,8 @@ mono_assembly_close_finish (MonoAssembly *assembly)
 		mono_image_close_finish (assembly->image);
 
 	if (assembly_is_dynamic (assembly)) {
-		g_free ((char*)assembly->aname.culture);
+		g_free ((char *)assembly->aname.culture);
+		g_free (assembly);
 	} else {
 		g_free (assembly);
 	}

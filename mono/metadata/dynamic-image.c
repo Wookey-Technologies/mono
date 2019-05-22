@@ -549,8 +549,17 @@ mono_dynamic_image_free (MonoDynamicImage *image)
 
 	dynamic_images_lock ();
 
-	if (dynamic_images)
+	if (dynamic_images) {
 		g_ptr_array_remove (dynamic_images, di);
+		int empty = 1;
+		for (i = 0; i < dynamic_images->len && empty; i++)
+			empty = g_ptr_array_index (dynamic_images, i) == 0;
+
+		if (empty) {
+			g_ptr_array_free (dynamic_images, TRUE);
+			dynamic_images = NULL;
+		}
+	}
 
 	dynamic_images_unlock ();
 }

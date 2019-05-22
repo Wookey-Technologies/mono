@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-#define ENABLE_OVERRIDABLE_ALLOCATORS
+#define ENABLE_OVERRIDABLE_ALLOCATORS 1
 
 #ifdef _MSC_VER
 #pragma include_alias(<eglib-config.h>, <eglib-config.hw>)

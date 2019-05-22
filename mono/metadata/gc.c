@@ -938,6 +938,8 @@ finalizer_thread (gpointer unused)
 #endif
 		}
 	}
+	g_free (mono_thread_internal_current ()->name);
+	mono_thread_internal_current ()->name = NULL;
 
 	mono_finalizer_lock ();
 	finalizer_thread_exited = TRUE;
