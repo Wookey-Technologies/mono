@@ -4393,6 +4393,7 @@ mono_thread_final_cleanup(void)
 {
 
 	g_hash_table_destroy (joinable_threads);
+	g_hash_table_destroy (contexts);
 
 	cleanup_freelist (thread_static_info.freelist);
 	cleanup_freelist (context_static_info.freelist);
