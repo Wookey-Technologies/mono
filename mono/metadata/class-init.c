@@ -4294,6 +4294,9 @@ mono_class_init (MonoClass *klass)
 	if (klass->inited || mono_class_has_failure (klass)) {
 		mono_loader_unlock ();
 		/* Somebody might have gotten in before us */
+		init_list = mono_native_tls_get_value (init_pending_tls_id);
+		init_list = g_slist_remove (init_list, klass);
+		mono_native_tls_set_value (init_pending_tls_id, init_list);
 		return !mono_class_has_failure (klass);
 	}
 

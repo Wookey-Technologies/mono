@@ -84,7 +84,9 @@ free_noilgen (MonoMethodBuilder *mb)
 	g_free (mb->method);
 	if (!mb->no_dup_name)
 		g_free (mb->name);
+	g_list_free (mb->method_data_list);
 	g_free (mb);
+
 }
 
 static MonoMethod *
@@ -117,11 +119,12 @@ create_method_noilgen (MonoMethodBuilder *mb, MonoMethodSignature *signature, in
 	if (!signature->hasthis)
 		method->flags |= METHOD_ATTRIBUTE_STATIC;
 
-	i = g_list_length ((GList *)mw->method_data);
+	i = g_list_length (mb->method_data_list);
 	if (i) {
 		GList *tmp;
 		void **data;
 		l = g_list_reverse ((GList *)mw->method_data);
+		mb->method_data_list = NULL;
 		if (method_is_dynamic (method))
 			data = (void **)g_malloc (sizeof (gpointer) * (i + 1));
 		else
@@ -220,15 +223,10 @@ mono_mb_create_method (MonoMethodBuilder *mb, MonoMethodSignature *signature, in
 guint32
 mono_mb_add_data (MonoMethodBuilder *mb, gpointer data)
 {
-	MonoMethodWrapper *mw;
-
 	g_assert (mb != NULL);
 
-	mw = (MonoMethodWrapper *)mb->method;
+	mb->method_data_list = g_list_prepend (mb->method_data_list, data);
 
-	/* one O(n) is enough */
-	mw->method_data = g_list_prepend ((GList *)mw->method_data, data);
-
-	return g_list_length ((GList *)mw->method_data);
+	return g_list_length (mb->method_data_list);
 }
 

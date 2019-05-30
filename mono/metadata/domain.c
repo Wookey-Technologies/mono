@@ -1352,6 +1352,15 @@ mono_domain_free (MonoDomain *domain, gboolean force)
 
 	mono_appdomains_lock ();
 	appdomains_list [domain->domain_id] = NULL;
+	gboolean empty = TRUE;
+	for (int i = 0; i < appdomain_list_size && empty; i++)
+		if (appdomains_list[i] != NULL)
+			empty = FALSE;
+	if (empty) {
+		g_free (appdomains_list);
+		appdomains_list = NULL;
+		appdomain_list_size = 0;
+    }
 	mono_appdomains_unlock ();
 
 	mono_gc_free_fixed (domain);

@@ -2486,8 +2486,8 @@ mono_method_signature_checked (MonoMethod *m, MonoError *error)
 		mono_memory_barrier ();
 		if (!m->signature)
 			m->signature = signature;
-		else if (imethod->declaring->klass->image == NULL)
-			g_free(signature);
+		else
+			mono_metadata_free_inflated_signature (signature);
 
 		mono_image_unlock (img);
 

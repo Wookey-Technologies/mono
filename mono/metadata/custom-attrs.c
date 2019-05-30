@@ -295,8 +295,10 @@ handle_enum:
 	case MONO_TYPE_I1:
 	case MONO_TYPE_BOOLEAN: {
 		MonoBoolean *bval = (MonoBoolean *)g_malloc (sizeof (MonoBoolean));
-		if (!bcheck_blob (p, 0, boundp, error))
+		if (!bcheck_blob (p, 0, boundp, error)) {
+			g_free (bval);
 			return NULL;
+		}
 		*bval = *p;
 		*end = p + 1;
 		return bval;
@@ -305,8 +307,10 @@ handle_enum:
 	case MONO_TYPE_U2:
 	case MONO_TYPE_I2: {
 		guint16 *val = (guint16 *)g_malloc (sizeof (guint16));
-		if (!bcheck_blob (p, 1, boundp, error))
+		if (!bcheck_blob (p, 1, boundp, error)) {
+			g_free (val);
 			return NULL;
+		}
 		*val = read16 (p);
 		*end = p + 2;
 		return val;
@@ -319,8 +323,10 @@ handle_enum:
 	case MONO_TYPE_U4:
 	case MONO_TYPE_I4: {
 		guint32 *val = (guint32 *)g_malloc (sizeof (guint32));
-		if (!bcheck_blob (p, 3, boundp, error))
+		if (!bcheck_blob (p, 3, boundp, error)) {
+			g_free (val);
 			return NULL;
+		}
 		*val = read32 (p);
 		*end = p + 4;
 		return val;
@@ -332,16 +338,20 @@ handle_enum:
 	case MONO_TYPE_U8:
 	case MONO_TYPE_I8: {
 		guint64 *val = (guint64 *)g_malloc (sizeof (guint64));
-		if (!bcheck_blob (p, 7, boundp, error))
+		if (!bcheck_blob (p, 7, boundp, error)) {
+			g_free (val);
 			return NULL;
+		}
 		*val = read64 (p);
 		*end = p + 8;
 		return val;
 	}
 	case MONO_TYPE_R8: {
 		double *val = (double *)g_malloc (sizeof (double));
-		if (!bcheck_blob (p, 7, boundp, error))
+		if (!bcheck_blob (p, 7, boundp, error)) {
+			g_free (val);
 			return NULL;
+		}
 		readr8 (p, val);
 		*end = p + 8;
 		return val;
@@ -913,7 +923,7 @@ create_custom_attr (MonoImage *image, MonoMethod *method, const guchar *data, gu
 			goto fail;
 		if (name_len > 0 && !bcheck_blob (named, name_len - 1, data_end, error))
 			goto fail;
-		name = (char *)g_malloc (name_len + 1);
+		name = (char *)alloca (name_len + 1);
 		memcpy (name, named, name_len);
 		name [name_len] = 0;
 		named += name_len;
@@ -966,7 +976,6 @@ fail:
 exit:
 	if (field && !type_is_reference (field->type))
 		g_free (val);
-	g_free (name);
 	if (prop_type && !type_is_reference (prop_type))
 		g_free (pparams [0]);
 	if (params) {

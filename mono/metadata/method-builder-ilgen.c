@@ -65,6 +65,7 @@ free_ilgen (MonoMethodBuilder *mb)
 			g_free (mb->name);
 		g_free (mb->code);
 	}
+	g_list_free (mb->method_data_list);
 	g_free (mb);
 }
 
@@ -143,11 +144,12 @@ create_method_ilgen (MonoMethodBuilder *mb, MonoMethodSignature *signature, int 
 
 	method->skip_visibility = mb->skip_visibility;
 
-	i = g_list_length ((GList *)mw->method_data);
+	i = g_list_length (mb->method_data_list);
 	if (i) {
 		GList *tmp;
 		void **data;
-		l = g_list_reverse ((GList *)mw->method_data);
+		l = g_list_reverse (mb->method_data_list);
+		mb->method_data_list = NULL;
 		if (method_is_dynamic (method))
 			data = (void **)g_malloc (sizeof (gpointer) * (i + 1));
 		else

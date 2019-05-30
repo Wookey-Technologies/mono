@@ -1063,6 +1063,7 @@ mono_gc_cleanup (void)
 				mono_finalizer_unlock ();
 			}
 		}
+		mono_threads_close_thread_handle (gc_thread->handle);
 		gc_thread = NULL;
 		mono_gc_base_cleanup ();
 	}

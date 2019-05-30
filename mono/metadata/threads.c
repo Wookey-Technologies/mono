@@ -4388,12 +4388,15 @@ void cleanup_freelist (StaticDataFreeList* freelist)
 		freelist = thread_static_info.freelist;
 	}
 }
+
 void
-mono_thread_final_cleanup(void)
+mono_thread_final_cleanup (void)
 {
 
 	g_hash_table_destroy (joinable_threads);
 	g_hash_table_destroy (contexts);
+
+	mono_thread_info_detach ();
 
 	cleanup_freelist (thread_static_info.freelist);
 	cleanup_freelist (context_static_info.freelist);
