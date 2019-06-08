@@ -19,9 +19,9 @@ if [ -d "$EXTERNAL" ]; then
 
     # copy runtime binaries
     rsync -am --exclude='*.ilk' $SOURCE/x64/Release/bin/mono-2.0-sgen.* $DEST/Runtime/
-    rsync -am --exclude='*.ilk' $SOURCE/x64/Release/bin/mono* $EXTERNAL/Linux/Release/bin/
-    rsync -am --exclude='*.ilk' $SOURCE/x64/Debug/bin/mono* $EXTERNAL/Linux/Debug/bin/
-    rsync -am --exclude='*.ilk' $SOURCE/x64/Release/bin/mono-sgen.exe $SOURCE/Linux/Release/bin/mono-sgen $SOURCE/x64/Release/bin/mono-2.0-sgen.* $DEST/Runtime/Mono/bin/
+    rsync -am --exclude='*.ilk' $SOURCE/x64/Release/bin/[Mm]ono* $EXTERNAL/Linux/Release/bin/
+    rsync -am --exclude='*.ilk' $SOURCE/x64/Debug/bin/[Mm]ono* $EXTERNAL/Linux/Debug/bin/
+    rsync -am --exclude='*.ilk' $SOURCE/x64/Release/bin/MonoPosixHelper.dll $SOURCE/x64/Release/bin/mono-sgen.exe $SOURCE/Linux/Release/bin/mono-sgen $SOURCE/x64/Release/bin/mono-2.0-sgen.* $DEST/Runtime/Mono/bin/
 else
     echo "usage:  $0 <path to sansar>"
     exit -1
