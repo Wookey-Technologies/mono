@@ -6,7 +6,7 @@
     BUILD_TARGETS         = Runtime\mono          ; can also build individual projects like: Applications\Injector:Rebuild;Libraries\LLScript:Clean
   -->
   <PropertyGroup Label="UserMacros">
-    <BUILD_TARGETS Condition="$(BUILD_TARGETS) == ''">Runtime\mono;Libraries\monoposixhelper</BUILD_TARGETS>
+    <BUILD_TARGETS Condition="$(BUILD_TARGETS) == ''">Libraries\monoposixhelper;Runtime\mono</BUILD_TARGETS>
   </PropertyGroup>
 
   <!-- Default list of platforms -->
