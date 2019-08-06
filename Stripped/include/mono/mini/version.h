@@ -1,1 +1,1 @@
-#define FULL_VERSION "mono-5.18.0.245-linden/e7aececaf86"
+#define FULL_VERSION "kelly/fix_iterate_some/d3de93d4fdc"
