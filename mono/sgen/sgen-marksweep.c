@@ -230,6 +230,14 @@ static gboolean compact_blocks = FALSE;
 		(bl) = BLOCK_UNTAG (*slot);				\
 		if (!(bl))						\
 			continue;
+
+#define FOREACH_BLOCK_RANGE_NO_LOCK(bl,begin,end,index) {	\
+	volatile gpointer *slot;					\
+	SGEN_ARRAY_LIST_FOREACH_SLOT_RANGE (&allocated_blocks, begin, end, slot, index) { \
+		(bl) = BLOCK_UNTAG (*slot);				\
+		if (!(bl))						\
+			continue;
+
 #define FOREACH_BLOCK_HAS_REFERENCES_NO_LOCK(bl,hr) {			\
 	volatile gpointer *slot;						\
 	SGEN_ARRAY_LIST_FOREACH_SLOT (&allocated_blocks, slot) {	\
@@ -986,20 +994,18 @@ major_iterate_some_objects (IterateObjectsFlags flags, IterateObjectCallbackFunc
 	gboolean non_pinned = flags & ITERATE_OBJECTS_NON_PINNED;
 	gboolean pinned = flags & ITERATE_OBJECTS_PINNED;
 	MSBlockInfo *block;
+	int index,last_block,remaining_blocks;
 
-	int remaining_blocks = 0;
+	last_block = start_block + max_blocks;
+	if (last_block > allocated_blocks.next_slot)
+		last_block = allocated_blocks.next_slot;
+	remaining_blocks = allocated_blocks.next_slot - last_block;
 
 	/* No actual sweeping will take place if we are in the middle of a major collection. */
 	major_finish_sweep_checking ();
-	FOREACH_BLOCK_NO_LOCK (block) {
-		const int limit = MS_BLOCK_FREE / block->obj_size;
-		const int end = start_block + max_blocks;
-		const int count = (end < limit) ? end : limit;
-		const int remaining = limit - end;
-		int i = start_block < limit ? start_block : limit;
-
-		if (remaining_blocks < remaining)
-			remaining_blocks = remaining;
+	FOREACH_BLOCK_RANGE_NO_LOCK (block, start_block, last_block, index) {
+		int count = MS_BLOCK_FREE / block->obj_size;
+		int i;
 
 		if (block->pinned && !pinned)
 			continue;
@@ -1015,7 +1021,7 @@ major_iterate_some_objects (IterateObjectsFlags flags, IterateObjectCallbackFunc
 			if (MS_OBJ_ALLOCED (obj, block))
 				callback ((GCObject*)obj, block->obj_size, data);
 		}
-	} END_FOREACH_BLOCK_NO_LOCK;
+	} END_FOREACH_BLOCK_RANGE_NO_LOCK;
 	return remaining_blocks;
 }
 
