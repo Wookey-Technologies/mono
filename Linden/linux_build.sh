@@ -3,7 +3,8 @@
 
 set -e
 
-base=$PWD
+base="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+root="$( cd "$base/.." && pwd )"
 configure_options='--with-mcs-docs=no --with-overridable-allocators --with-large-heap=yes'
 
 
@@ -15,6 +16,11 @@ if [ -z "$BUILD_CONFIGURATIONS" ]; then
 	BUILD_CONFIGURATIONS="Release;Debug"
 fi
 
+DEBUG_PREFIX_FLAG=""
+if [ -n "$DEBUG_PREFIX" ]; then
+    DEBUG_PREFIX_FLAG="-fdebug-prefix-map=${root}=${DEBUG_PREFIX}"
+fi
+
 install_dirs=(".")
 
 if [[ ! -z "${@:2}" ]]; then
@@ -23,14 +29,14 @@ else
 	rm -rf $base/Output/Linux $base/Output/include
 fi
 
-cd ..
+cd $root
 
 function build_config {
 
 	local config=$1
 
 	if [[ $BUILD_CONFIGURATIONS == *$config* ]]; then
-		export CFLAGS="-DPIC_INITIAL_EXEC -w"
+		export CFLAGS="-DPIC_INITIAL_EXEC -w $DEBUG_PREFIX_FLAG"
 		if [[ "Debug" == $config ]]; then 
 			export CFLAGS="-O0 $CFLAGS"
 		fi
@@ -46,7 +52,7 @@ function build_config {
 		if [[ "$LAST_BUILD" != "$config" ]]; then
 			make clean || true 
 			./configure  --prefix=$base/Output/Linux/$config $configure_options
-			make 
+			make
 			echo $config > $base/.last_build
 		fi 
 		for install_dir in "${install_dirs[@]}" ; do 
